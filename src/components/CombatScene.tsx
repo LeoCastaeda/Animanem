@@ -20,16 +20,20 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
   
   const [monster, setMonster] = useState<Monster>(() => {
     if (isFinalBoss) {
-      return { id: 'colossus', name: 'COLOSO DEL CAOS', hp: 500, maxHp: 500, attack: 25, type: 'boss' };
+      return { id: 'colossus', name: 'COLOSO DEL CAOS', hp: 500, maxHp: 500, attack: 25, type: 'boss', image: '/images/colossus.png' };
     }
     const monsters: Monster[] = [
-      { id: 'shadow', name: 'Sombra Ferina', hp: 40, maxHp: 40, attack: 10, type: 'basic' },
-      { id: 'ghoul', name: 'Ghoul de Ceniza', hp: 60, maxHp: 60, attack: 12, type: 'basic' },
-      { id: 'beast', name: 'Bestia Mágica', hp: 80, maxHp: 80, attack: 15, type: 'basic' },
-      { id: 'guardian', name: 'Guardián de Piedra', hp: 100, maxHp: 100, attack: 18, type: 'basic' },
+      { id: 'shadow', name: 'Sombra Ferina', hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png' },
+      { id: 'ghoul', name: 'Ghoul de Ceniza', hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png' },
+      { id: 'beast', name: 'Bestia Mágica', hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png' },
+      { id: 'guardian', name: 'Guardián de Piedra', hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png' },
     ];
     return monsters[Math.floor(Math.random() * monsters.length)];
   });
+
+  const isGhoul = monster.id === 'ghoul';
+  const ghoulOffsetClass = isGhoul ? 'mt-4' : '';
+  const ghoulObjectPosition = isGhoul ? 'object-top' : 'object-cover';
 
   const [playerHp, setPlayerHp] = useState(gameState.player.hp);
   const [isFriendActive, setIsFriendActive] = useState(false);
@@ -144,7 +148,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.3 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-red-600 z-[90] pointer-events-none"
+            className="absolute inset-0 bg-red-600 z-90 pointer-events-none"
           />
         )}
       </AnimatePresence>
@@ -171,11 +175,19 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           {monster.id === 'colossus' ? (
              <div className="w-56 h-56 rounded-full frosted-glass flex items-center justify-center relative overflow-hidden border-white/30 shadow-[0_0_50px_rgba(79,70,229,0.3)]">
                 <div className="absolute inset-0 animate-spin bg-[conic-gradient(from_0deg,#6366f1,#a855f7,#6366f1)] opacity-20" />
-                <Skull className="w-24 h-24 text-white/50" />
+                {monster.image ? (
+                  <img src={monster.image} alt={monster.name} className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <Skull className="w-24 h-24 text-white/50" />
+                )}
              </div>
           ) : (
-            <div className="w-full h-full frosted-glass rounded-3xl flex items-center justify-center border-white/20">
-              <Ghost className="w-24 h-24 text-white/20" />
+            <div className={`w-full h-full frosted-glass rounded-3xl flex items-center justify-center border-white/20 ${ghoulOffsetClass}`}>
+              {monster.image ? (
+                <img src={monster.image} alt={monster.name} className={`w-full h-full ${ghoulObjectPosition} rounded-3xl`} />
+              ) : (
+                <Ghost className="w-24 h-24 text-white/20" />
+              )}
               {/* Cuando tengas un modelo .glb, puedes agregarlo aquí: */}
               {/* <Character3D modelUrl="/path_to_your_model.glb" /> */}
             </div>
@@ -186,7 +198,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           <h3 className="text-3xl font-black italic tracking-tighter text-white uppercase">{monster.name}</h3>
           <div className="w-64 h-2 bg-black/40 rounded-full mt-3 overflow-hidden border border-white/10">
             <motion.div 
-              className="h-full bg-gradient-to-r from-red-600 to-red-400 shadow-[0_0_10px_red]"
+              className="h-full bg-linear-to-r from-red-600 to-red-400 shadow-[0_0_10px_red]"
               initial={{ width: '100%' }}
               animate={{ width: `${(monster.hp / monster.maxHp) * 100}%` }}
             />
