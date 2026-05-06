@@ -18,20 +18,56 @@ interface CombatSceneProps {
 export default function CombatScene({ gameState, onWin, onGameOver }: CombatSceneProps) {
   const isFinalBoss = gameState.currentScene === 'final-boss';
   
+  // Monstruos disponibles por escena
+  const ALL_MONSTERS: Monster[] = [
+    { id: 'shadow-1', name: 'Sombra Ferina', hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png' },
+    { id: 'shadow-2', name: 'Sombra Nocturna', hp: 45, maxHp: 45, attack: 11, type: 'basic', image: '/images/shadow.png' },
+    { id: 'ghoul-1', name: 'Ghoul de Ceniza', hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png' },
+    { id: 'ghoul-2', name: 'Ghoul Antiguo', hp: 65, maxHp: 65, attack: 13, type: 'basic', image: '/images/ghoul.png' },
+    { id: 'beast-1', name: 'Bestia Mágica', hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png' },
+    { id: 'beast-2', name: 'Bestia Salvaje', hp: 85, maxHp: 85, attack: 16, type: 'basic', image: '/images/beast.png' },
+    { id: 'guardian-1', name: 'Guardián de Piedra', hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png' },
+    { id: 'guardian-2', name: 'Guardián Arcano', hp: 110, maxHp: 110, attack: 20, type: 'basic', image: '/images/guardian.png' },
+    { id: 'wraith', name: 'Espectro Errante', hp: 55, maxHp: 55, attack: 14, type: 'basic', image: '/images/wraith.png' },
+    { id: 'golem', name: 'Golem de Ruinas', hp: 120, maxHp: 120, attack: 22, type: 'basic', image: '/images/golem.png' },
+  ];
+
+  // Monstruos por escena: beach(2), forest(3), ruins(4), city(5)
+  const ENCOUNTER_COUNTS: Record<string, number> = {
+    'intro': 0,
+    'beach': 2,
+    'forest': 3,
+    'ruins': 4,
+    'city': 5,
+    'final-boss': 1,
+    'ending': 0,
+  };
+
+  const generateSceneMonsters = () => {
+    const count = ENCOUNTER_COUNTS[gameState.currentScene] || 0;
+    const shuffled = [...ALL_MONSTERS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count).map(m => m.id);
+  };
+
   const [monster, setMonster] = useState<Monster>(() => {
     if (isFinalBoss) {
       return { id: 'colossus', name: 'COLOSO DEL CAOS', hp: 500, maxHp: 500, attack: 25, type: 'boss', image: '/images/colossus.png' };
     }
-    const monsters: Monster[] = [
-      { id: 'shadow', name: 'Sombra Ferina', hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png' },
-      { id: 'ghoul', name: 'Ghoul de Ceniza', hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png' },
-      { id: 'beast', name: 'Bestia Mágica', hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png' },
-      { id: 'guardian', name: 'Guardián de Piedra', hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png' },
-    ];
-    return monsters[Math.floor(Math.random() * monsters.length)];
+
+    // Si es la primera vez en esta escena, generar encuentros
+    let monsterIds = gameState.sceneEncounters[gameState.currentScene] || [];
+    if (monsterIds.length === 0) {
+      monsterIds = generateSceneMonsters();
+    }
+
+    // Obtener el monstruo actual según currentEncounterId
+    const currentMonsterId = monsterIds[gameState.currentEncounterId] || monsterIds[0];
+    const monsterData = ALL_MONSTERS.find(m => m.id === currentMonsterId);
+    
+    return monsterData || ALL_MONSTERS[0];
   });
 
-  const isGhoul = monster.id === 'ghoul';
+  const isGhoul = monster.id.startsWith('ghoul');
   const ghoulOffsetClass = isGhoul ? 'mt-4' : '';
   const ghoulObjectPosition = isGhoul ? 'object-top' : 'object-cover';
 
@@ -115,8 +151,24 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
   useEffect(() => {
     if (monster.hp <= 0) {
       const timer = setTimeout(() => {
+        // Actualizar encuentros de la escena
+        const currentEncounters = gameState.sceneEncounters[gameState.currentScene] || [];
+        const updatedEncounters = {
+          ...gameState.sceneEncounters,
+          [gameState.currentScene]: [...new Set([...currentEncounters, monster.id])]
+        };
+
+        const ENCOUNTER_COUNTS: Record<string, number> = {
+          'intro': 0, 'beach': 2, 'forest': 3, 'ruins': 4, 'city': 5, 'final-boss': 1, 'ending': 0,
+        };
+
+        const monstersInScene = ENCOUNTER_COUNTS[gameState.currentScene] || 0;
+        const hasMoreEncounters = updatedEncounters[gameState.currentScene].length < monstersInScene;
+
         const newState = {
           ...gameState,
+          sceneEncounters: updatedEncounters,
+          currentEncounterId: hasMoreEncounters ? gameState.currentEncounterId + 1 : 0,
           monstersDefeated: gameState.monstersDefeated + 1,
           player: {
             ...gameState.player,

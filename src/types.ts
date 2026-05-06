@@ -32,8 +32,9 @@ export interface GameState {
   hasPet: boolean;
   bestFriendStatus: 'alive' | 'dead' | 'revived';
   inventory: string[];
+  sceneEncounters: Record<SceneId, string[]>; // Monstruos derrotados por escena
+  currentEncounterId: number; // Número de encuentro actual en la escena
 }
-
 export const INITIAL_STATE: GameState = {
   currentScene: 'intro',
   player: {
@@ -48,5 +49,17 @@ export const INITIAL_STATE: GameState = {
   monstersDefeated: 0,
   hasPet: false,
   bestFriendStatus: 'alive',
+  inventory: [],
+  sceneEncounters: {
+    'intro': [],
+    'beach': [],
+    'forest': [],
+    'ruins': [],
+    'city': [],
+    'final-boss': [],
+    'ending': [],
+  },
+  currentEncounterId: 0,
+};
   inventory: [],
 };

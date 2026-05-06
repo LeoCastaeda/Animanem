@@ -50,7 +50,7 @@ export default function App() {
       {shouldShowVideo && (
         <video
           key={gameState.currentScene}
-          className="absolute inset-0 w-full h-full object-cover opacity-80"
+          className="absolute inset-0 w-full h-full object-cover opacity-60 sm:opacity-70 md:opacity-80 will-change-opacity"
           src={getBackgroundVideoSrc()}
           autoPlay
           muted
