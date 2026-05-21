@@ -13,6 +13,9 @@ export interface PlayerStats {
   attack: number;
   transformationUnlocked: boolean;
   isTransformed: boolean;
+  energy: number;
+  maxEnergy: number;
+  shieldActive: boolean;
 }
 
 export interface Monster {
@@ -30,10 +33,12 @@ export interface GameState {
   player: PlayerStats;
   monstersDefeated: number;
   hasPet: boolean;
+  hasLion: boolean;
   bestFriendStatus: 'alive' | 'dead' | 'revived';
   inventory: string[];
-  sceneEncounters: Record<SceneId, string[]>; // Monstruos derrotados por escena
-  currentEncounterId: number; // Número de encuentro actual en la escena
+  defeatedMonsters: Record<SceneId, string[]>; // Monstruos derrotados por escena
+  plannedEncounters: Record<SceneId, string[]>; // Lista de monstruos planeados para la escena
+  currentEncounterId: number; // Índice del monstruo actual en plannedEncounters
 }
 export const INITIAL_STATE: GameState = {
   currentScene: 'intro',
@@ -45,21 +50,22 @@ export const INITIAL_STATE: GameState = {
     attack: 15,
     transformationUnlocked: false,
     isTransformed: false,
+    energy: 0,
+    maxEnergy: 100,
+    shieldActive: false,
   },
   monstersDefeated: 0,
   hasPet: false,
+  hasLion: false,
   bestFriendStatus: 'alive',
-  inventory: [],
-  sceneEncounters: {
-    'intro': [],
-    'beach': [],
-    'forest': [],
-    'ruins': [],
-    'city': [],
-    'final-boss': [],
-    'ending': [],
+  inventory: ['potion'],
+  defeatedMonsters: {
+    'intro': [], 'beach': [], 'forest': [], 'ruins': [], 'city': [], 'final-boss': [], 'ending': [],
+  },
+  plannedEncounters: {
+    'intro': [], 'beach': [], 'forest': [], 'ruins': [], 'city': [], 'final-boss': [], 'ending': [],
   },
   currentEncounterId: 0,
 };
-  inventory: [],
-};
+
+

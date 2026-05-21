@@ -20,20 +20,38 @@ export default function IntroScene({ onComplete }: { onComplete: () => void }) {
 
   useEffect(() => {
     if (step >= narrative.length) {
-      const timer = setTimeout(onComplete, 2000);
+      const timer = setTimeout(onComplete, 1000);
       return () => clearTimeout(timer);
     }
-    const timer = setTimeout(() => setStep(s => s + 1), 3500);
+    const timer = setTimeout(() => setStep(s => s + 1), 2200);
     return () => clearTimeout(timer);
   }, [step, onComplete]);
 
+  const handleNext = () => {
+    if (step < narrative.length) {
+      setStep(s => s + 1);
+    }
+  };
+
   return (
     <motion.div 
-      className="flex flex-col items-center justify-center h-full p-8 text-center"
+      className="flex flex-col items-center justify-center h-full p-8 text-center cursor-pointer select-none relative"
+      onClick={handleNext}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
+      {/* Botón de omitir */}
+      <button 
+        onClick={(e) => {
+          e.stopPropagation();
+          onComplete();
+        }}
+        className="absolute top-6 right-6 px-4 py-2 rounded-full frosted-glass border border-white/20 hover:bg-white/15 active:bg-white/25 transition-all text-xs font-bold uppercase tracking-wider text-white/80 hover:text-white pointer-events-auto z-50 shadow-lg"
+      >
+        Saltar intro ➔
+      </button>
+
       <AnimatePresence mode="wait">
         {step < narrative.length && (
           <motion.div
@@ -41,8 +59,8 @@ export default function IntroScene({ onComplete }: { onComplete: () => void }) {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
-            transition={{ duration: 1.2 }}
-            className="flex flex-col items-center gap-8"
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center gap-8 pointer-events-none"
           >
             {narrative[step].icon && (
               <motion.div
@@ -60,15 +78,18 @@ export default function IntroScene({ onComplete }: { onComplete: () => void }) {
             <h1 className="text-3xl md:text-5xl font-black italic tracking-tight text-white/90 max-w-4xl leading-tight drop-shadow-2xl">
               {narrative[step].text}
             </h1>
+            <p className="text-[10px] md:text-xs uppercase tracking-[0.25em] text-white/40 animate-pulse mt-2">
+              Haz clic o toca la pantalla para continuar
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="absolute bottom-16 flex gap-3">
+      <div className="absolute bottom-16 flex gap-3 pointer-events-none">
         {narrative.map((_, i) => (
           <div 
             key={i} 
-            className={`h-1 rounded-full transition-all duration-700 ${i === step ? 'bg-indigo-500 w-12 shadow-[0_0_10px_indigo]' : 'bg-white/10 w-4'}`} 
+            className={`h-1 rounded-full transition-all duration-500 ${i === step ? 'bg-indigo-500 w-12 shadow-[0_0_10px_indigo]' : 'bg-white/10 w-4'}`} 
           />
         ))}
       </div>
