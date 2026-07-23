@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GameState, SceneId } from '../types.ts';
 import { Sword, ChevronRight, Gift, Flame, Sparkles, Heart, HelpCircle, ShieldAlert, Sparkle } from 'lucide-react';
@@ -25,6 +25,53 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
   // Estado local para controlar el flujo de eventos
   const [eventStep, setEventStep] = useState<'intro' | 'result'>('intro');
   const [eventResult, setEventResult] = useState('');
+
+  // Estados específicos para el Minijuego 2D de Alineación de Runas
+  const [cursorPos, setCursorPos] = useState(0);
+  const [cursorDir, setCursorDir] = useState(1);
+  const [attemptsLeft, setAttemptsLeft] = useState(3);
+  const [targetStart, setTargetStart] = useState(40);
+  const [minigameState, setMinigameState] = useState<'playing' | 'success' | 'failed'>('playing');
+  const [isStopped, setIsStopped] = useState(false);
+
+  // Inicializar o reiniciar los estados al entrar al minijuego
+  useEffect(() => {
+    if (currentEncounter && currentEncounter.startsWith('event:rune-alignment')) {
+      setCursorPos(0);
+      setCursorDir(1);
+      setAttemptsLeft(3);
+      setIsStopped(false);
+      setMinigameState('playing');
+      const start = Math.floor(20 + Math.random() * 45); // Zona objetivo aleatoria entre 20% y 65%
+      setTargetStart(start);
+    }
+  }, [currentEncounter, currentEncounterId]);
+
+  // Bucle de oscilación del cursor en requestAnimationFrame para suavidad
+  useEffect(() => {
+    if (!currentEncounter || !currentEncounter.startsWith('event:rune-alignment') || minigameState !== 'playing' || isStopped) return;
+
+    let animFrameId: number;
+    const speed = 2.4; // Ajuste de velocidad para oscilación fluida
+
+    const updateLoop = () => {
+      setCursorPos(prev => {
+        let next = prev + cursorDir * speed;
+        if (next >= 100) {
+          next = 100;
+          setCursorDir(-1);
+        } else if (next <= 0) {
+          next = 0;
+          setCursorDir(1);
+        }
+        return next;
+      });
+      animFrameId = requestAnimationFrame(updateLoop);
+    };
+
+    animFrameId = requestAnimationFrame(updateLoop);
+    return () => cancelAnimationFrame(animFrameId);
+  }, [currentEncounter, minigameState, isStopped, cursorDir]);
 
   const sceneConfig = {
     'beach': {
@@ -77,6 +124,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
     if (!id) return '?';
     if (id.startsWith('event:chest')) return '📦';
     if (id.startsWith('event:shrine')) return '🌟';
+    if (id.startsWith('event:rune-alignment')) return '🌀';
     if (id.startsWith('event:pet')) return '🐾';
     if (id.startsWith('event:lion')) return '🦁';
     if (id.startsWith('event:friend-relic')) return '🕯️';
@@ -206,6 +254,71 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
     });
   };
 
+  // Detener y verificar la alineación del cursor en el minijuego
+  const handleStopRune = () => {
+    if (minigameState !== 'playing' || isStopped) return;
+    setIsStopped(true);
+    soundManager.playClick();
+
+    const inRange = cursorPos >= targetStart && cursorPos <= (targetStart + 20);
+
+    if (inRange) {
+      soundManager.playVictory();
+      setMinigameState('success');
+      
+      const updatedPlayer = { ...gameState.player };
+      const updatedInventory = [...gameState.inventory];
+      
+      updatedPlayer.energy = Math.min(updatedPlayer.maxEnergy, updatedPlayer.energy + 30);
+      updatedPlayer.hp = Math.min(updatedPlayer.maxHp, updatedPlayer.hp + 20);
+      
+      const itemPool = ['potion', 'elixir', 'shield', 'crystal'];
+      const randomItem = itemPool[Math.floor(Math.random() * itemPool.length)];
+      updatedInventory.push(randomItem);
+      
+      const itemNames: Record<string, string> = {
+        potion: 'Poción de Vida',
+        elixir: 'Elixir de Fuerza (+3 Ataque)',
+        shield: 'Poción de Escudo (Bloquea un ataque)',
+        crystal: 'Cristal de Furia (+50 Energía)'
+      };
+
+      setEventResult(`¡Sincronización resonante perfecta! Las runas se estabilizan y el monolito libera su energía: recuperas +20 HP, ganas +30 AP y obtienes ${itemNames[randomItem]}.`);
+      setEventStep('result');
+
+      onStateUpdate({
+        player: updatedPlayer,
+        inventory: updatedInventory
+      });
+    } else {
+      soundManager.playHit();
+      const nextAttempts = attemptsLeft - 1;
+      setAttemptsLeft(nextAttempts);
+
+      if (nextAttempts <= 0) {
+        soundManager.playDefeat();
+        setMinigameState('failed');
+        
+        const updatedPlayer = { ...gameState.player };
+        updatedPlayer.hp = Math.max(1, updatedPlayer.hp - 15);
+        
+        setEventResult('¡Fallo de resonancia catastrófico! La sobrecarga de energía arcana explota liberando un latigazo inestable. Pierdes 15 HP.');
+        setEventStep('result');
+
+        onStateUpdate({
+          player: updatedPlayer
+        });
+      } else {
+        // Reiniciar cursor para reintentar tras 1 segundo
+        setTimeout(() => {
+          setIsStopped(false);
+          setCursorPos(0);
+          setCursorDir(1);
+        }, 1000);
+      }
+    }
+  };
+
   // Finalizar evento e incrementar índice de encuentros
   const handleFinishEvent = () => {
     soundManager.playClick();
@@ -259,6 +372,14 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
         optionA: 'Canalizar su Espíritu',
         optionB: 'Recuperar el Metal (+Atk)',
         icon: <Sparkle className="w-10 h-10 text-indigo-400" />
+      };
+    } else if (currentEncounter.startsWith('event:rune-alignment')) {
+      return {
+        title: 'Alineación de Runas Arcanas',
+        desc: 'Un monolito de cristal flota frente a ti, proyectando runas distorsionadas. Debes estabilizar su flujo de energía en el instante preciso de resonancia.',
+        optionA: '',
+        optionB: '',
+        icon: <Sparkles className="w-10 h-10 text-yellow-400 animate-pulse" />
       };
     }
 
@@ -327,7 +448,61 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
             <div className="w-24 md:w-32 h-px bg-white/20 mx-auto mb-3 md:mb-4" />
 
             <AnimatePresence mode="wait">
-              {eventStep === 'intro' ? (
+              {currentEncounter.startsWith('event:rune-alignment') && minigameState === 'playing' ? (
+                <motion.div
+                  key="event-minigame"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-6"
+                >
+                  <p className="text-xs md:text-sm text-indigo-100/70 leading-relaxed font-medium">
+                    {eventData.desc}
+                  </p>
+
+                  <div className="w-full bg-slate-950/70 border border-indigo-500/20 rounded-2xl p-4 md:p-6 flex flex-col gap-4 relative overflow-hidden select-none">
+                    {/* Barra de alineación */}
+                    <div className="relative w-full h-8 bg-slate-900 border border-white/10 rounded-lg overflow-hidden flex items-center shadow-inner">
+                      {/* Zona objetivo (Sweet Spot) */}
+                      <div 
+                        className="absolute h-full bg-emerald-500/25 border-l border-r border-emerald-400/50 animate-pulse shadow-[0_0_15px_rgba(52,211,153,0.2)]"
+                        style={{ left: `${targetStart}%`, width: '20%' }}
+                      />
+                      {/* Cursor Móvil */}
+                      <div 
+                        className="absolute w-1.5 h-full bg-indigo-400 shadow-[0_0_10px_indigo] transition-transform duration-75"
+                        style={{ left: `${cursorPos}%`, transform: 'translateX(-50%)' }}
+                      />
+                    </div>
+
+                    <div className="flex justify-between items-center text-[8px] sm:text-[9px] font-black tracking-wider text-slate-400 uppercase">
+                      <span>0%</span>
+                      <span className="text-emerald-400/80 animate-pulse">ZONA DE RESONANCIA ({targetStart}% - {targetStart + 20}%)</span>
+                      <span>100%</span>
+                    </div>
+
+                    {/* Intentos y feedback */}
+                    <div className="flex justify-between items-center bg-white/5 border border-white/5 px-4 py-2 rounded-xl mt-1 text-xs">
+                      <span className="text-slate-400 font-bold uppercase tracking-wider text-[8px] sm:text-[9px]">Intentos Restantes:</span>
+                      <span className="font-mono font-black text-indigo-300 flex gap-1">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <span key={i} className={i < attemptsLeft ? 'text-indigo-400 animate-pulse' : 'text-slate-700'}>
+                            ★
+                          </span>
+                        ))}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleStopRune}
+                    disabled={isStopped}
+                    className="w-full py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 border border-indigo-400/40 hover:scale-102 active:scale-98 disabled:opacity-50 transition-all rounded-xl text-white font-black italic tracking-widest uppercase text-[10px] md:text-xs shadow-lg cursor-pointer"
+                  >
+                    {isStopped ? 'Sincronizando...' : 'Estabilizar Runa (Click!)'}
+                  </button>
+                </motion.div>
+              ) : eventStep === 'intro' ? (
                 <motion.div
                   key="event-intro"
                   initial={{ opacity: 0, y: 10 }}

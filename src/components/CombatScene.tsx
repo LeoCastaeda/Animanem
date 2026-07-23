@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { GameState, Monster } from '../types.ts';
 import { Sword, Heart, Zap, Briefcase, ArrowLeft, Shield, Sparkles, Ghost, Skull, ChevronRight, Scroll, X } from 'lucide-react';
 import Character3D from './Character3D.tsx';
+import Monster3D from './Monster3D.tsx';
 import { soundManager } from '../utils/audio.ts';
 
 interface CombatSceneProps {
@@ -28,26 +29,26 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
   
   // Lista de monstruos del juego
   const ALL_MONSTERS: Monster[] = [
-    { id: 'shadow-1', name: 'Sombra Ferina', hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png' },
-    { id: 'shadow-2', name: 'Sombra Nocturna', hp: 45, maxHp: 45, attack: 11, type: 'basic', image: '/images/shadow.png' },
-    { id: 'ghoul-1', name: 'Ghoul de Ceniza', hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png' },
-    { id: 'ghoul-2', name: 'Ghoul Antiguo', hp: 65, maxHp: 65, attack: 13, type: 'basic', image: '/images/ghoul.png' },
-    { id: 'beast-1', name: 'Bestia Mágica', hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png' },
-    { id: 'beast-2', name: 'Bestia Salvaje', hp: 85, maxHp: 85, attack: 16, type: 'basic', image: '/images/beast.png' },
-    { id: 'guardian-1', name: 'Guardián de Piedra', hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png' },
-    { id: 'guardian-2', name: 'Guardián Arcano', hp: 110, maxHp: 110, attack: 20, type: 'basic', image: '/images/guardian.png' },
-    { id: 'wraith', name: 'Espectro Errante', hp: 55, maxHp: 55, attack: 14, type: 'basic', image: '/images/wraith.png' },
-    { id: 'golem', name: 'Golem de Ruinas', hp: 120, maxHp: 120, attack: 22, type: 'basic', image: '/images/golem.png' },
-    { id: 'spirit', name: 'Espíritu Antiguo', hp: 70, maxHp: 70, attack: 13, type: 'basic', image: '/images/spirit.png' },
-    { id: 'ice-giant', name: 'Gigante de Hielo', hp: 95, maxHp: 95, attack: 17, type: 'basic', image: '/images/giant.png' },
-    { id: 'demon', name: 'Demonio Errante', hp: 75, maxHp: 75, attack: 15, type: 'basic', image: '/images/demon.png' },
-    { id: 'dark-knight', name: 'Caballero Oscuro', hp: 105, maxHp: 105, attack: 19, type: 'basic', image: '/images/knight.png' },
-    { id: 'titan', name: 'Titán Maldito', hp: 130, maxHp: 130, attack: 23, type: 'basic', image: '/images/titan.png' },
+    { id: 'shadow-1', name: 'Sombra Ferina', level: 1, hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png' },
+    { id: 'shadow-2', name: 'Sombra Nocturna', level: 2, hp: 45, maxHp: 45, attack: 11, type: 'basic', image: '/images/shadow.png' },
+    { id: 'ghoul-1', name: 'Ghoul de Ceniza', level: 2, hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png' },
+    { id: 'ghoul-2', name: 'Ghoul Antiguo', level: 3, hp: 65, maxHp: 65, attack: 13, type: 'basic', image: '/images/ghoul.png' },
+    { id: 'beast-1', name: 'Bestia Mágica', level: 3, hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png' },
+    { id: 'beast-2', name: 'Bestia Salvaje', level: 4, hp: 85, maxHp: 85, attack: 16, type: 'basic', image: '/images/beast.png' },
+    { id: 'guardian-1', name: 'Guardián de Piedra', level: 4, hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png' },
+    { id: 'guardian-2', name: 'Guardián Arcano', level: 5, hp: 110, maxHp: 110, attack: 20, type: 'basic', image: '/images/guardian.png' },
+    { id: 'wraith', name: 'Espectro Errante', level: 3, hp: 55, maxHp: 55, attack: 14, type: 'basic', image: '/images/wraith.png' },
+    { id: 'golem', name: 'Golem de Ruinas', level: 5, hp: 120, maxHp: 120, attack: 22, type: 'basic', image: '/images/golem.png' },
+    { id: 'spirit', name: 'Espíritu Antiguo', level: 4, hp: 70, maxHp: 70, attack: 13, type: 'basic', image: '/images/spirit.png' },
+    { id: 'ice-giant', name: 'Gigante de Hielo', level: 4, hp: 95, maxHp: 95, attack: 17, type: 'basic', image: '/images/giant.png' },
+    { id: 'demon', name: 'Demonio Errante', level: 5, hp: 75, maxHp: 75, attack: 15, type: 'basic', image: '/images/demon.png' },
+    { id: 'dark-knight', name: 'Caballero Oscuro', level: 6, hp: 105, maxHp: 105, attack: 19, type: 'basic', image: '/images/knight.png' },
+    { id: 'titan', name: 'Titán Maldito', level: 7, hp: 130, maxHp: 130, attack: 23, type: 'basic', image: '/images/titan.png' },
   ];
 
   const [monster, setMonster] = useState<Monster>(() => {
     if (isFinalBoss) {
-      return { id: 'colossus', name: 'COLOSO DEL CAOS', hp: 500, maxHp: 500, attack: 25, type: 'boss', image: '/images/colossus.png' };
+      return { id: 'colossus', name: 'COLOSO DEL CAOS', level: 10, hp: 500, maxHp: 500, attack: 25, type: 'boss', image: '/images/colossus.png' };
     }
     const monsterIds = gameState.plannedEncounters[gameState.currentScene] || [];
     const currentMonsterId = monsterIds[gameState.currentEncounterId] || monsterIds[0];
@@ -67,6 +68,11 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
   const [isAnimating, setIsAnimating] = useState(false);
   const [showItems, setShowItems] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+
+  // Animaciones y modo de vista
+  const [playerAction, setPlayerAction] = useState<'idle' | 'attack' | 'heal' | 'damage' | 'shield'>('idle');
+  const [monsterAction, setMonsterAction] = useState<'idle' | 'attack' | 'damage'>('idle');
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>('3d');
 
   // Historial de combate y VFX flotantes
   const [logs, setLogs] = useState<string[]>(['¡Encuentro hostil comenzado! Prepárate para combatir.']);
@@ -161,6 +167,18 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
     setIsAnimating(true);
     soundManager.playHit();
 
+    // Animaciones físicas
+    setPlayerAction('attack');
+    setTimeout(() => {
+      setMonsterAction('damage');
+      setTimeout(() => {
+        setMonsterAction('idle');
+      }, 500);
+    }, 200);
+    setTimeout(() => {
+      setPlayerAction('idle');
+    }, 600);
+
     // Cálculo de daño
     const baseDmg = playerAttack + (gameState.player.level * 2);
     const finalDamage = isTransformed ? baseDmg * 2 : baseDmg;
@@ -192,6 +210,11 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
     if (turn !== 'player' || isAnimating || monster.hp <= 0) return;
     setIsAnimating(true);
     soundManager.playHeal();
+
+    setPlayerAction('heal');
+    setTimeout(() => {
+      setPlayerAction('idle');
+    }, 600);
 
     const healAmount = 35;
     setPlayerHp(prev => Math.min(gameState.player.maxHp, prev + healAmount));
@@ -233,18 +256,26 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
     setShowItems(false);
 
     if (itemKey === 'potion') {
+      setPlayerAction('heal');
+      setTimeout(() => setPlayerAction('idle'), 600);
       const healAmount = 40;
       setPlayerHp(prev => Math.min(gameState.player.maxHp, prev + healAmount));
       spawnVFX(`+${healAmount} HP`, 'text-emerald-400 font-bold', false);
     } else if (itemKey === 'elixir') {
+      setPlayerAction('heal');
+      setTimeout(() => setPlayerAction('idle'), 600);
       setPlayerAttack(prev => prev + 3);
       addLog(`✨ ¡Tu ataque base ha aumentado en +3 permanentemente!`);
       spawnVFX(`+3 ATK`, 'text-purple-400 font-bold', false);
     } else if (itemKey === 'shield') {
+      setPlayerAction('shield');
+      setTimeout(() => setPlayerAction('idle'), 600);
       setShieldActive(true);
       addLog(`🛡️ Escudo de runas activado. Bloqueará el siguiente ataque.`);
       spawnVFX(`ESCUDO`, 'text-cyan-400 font-bold', false);
     } else if (itemKey === 'crystal') {
+      setPlayerAction('heal');
+      setTimeout(() => setPlayerAction('idle'), 600);
       setPlayerEnergy(prev => {
         const next = Math.min(gameState.player.maxEnergy, prev + 50);
         if (next >= 100 && prev < 100) {
@@ -301,12 +332,16 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             // Curar
             nextPlayerHp = Math.min(gameState.player.maxHp, playerHp + 5);
             setPlayerHp(nextPlayerHp);
+            setPlayerAction('heal');
+            setTimeout(() => setPlayerAction('idle'), 500);
             addLog('🐾 Tu zorro arcano te lame las heridas y te cura +5 HP.');
             spawnVFX('+5 HP', 'text-teal-400 text-xs', false);
           } else {
             // Atacar
             nextMonsterHp = Math.max(0, monster.hp - 5);
             setMonster(prev => ({ ...prev, hp: nextMonsterHp }));
+            setMonsterAction('damage');
+            setTimeout(() => setMonsterAction('idle'), 500);
             addLog(`🐾 Tu zorro arcano muerde a ${monster.name} por 5 de daño.`);
             spawnVFX('-5 HP', 'text-teal-400 text-xs', true);
           }
@@ -320,6 +355,8 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           const lionDmg = 8;
           nextMonsterHp = Math.max(0, nextMonsterHp - lionDmg);
           setMonster(prev => ({ ...prev, hp: nextMonsterHp }));
+          setMonsterAction('damage');
+          setTimeout(() => setMonsterAction('idle'), 500);
           addLog(`🦁 Tu León Astral ruge con fuerza e inflige ${lionDmg} de daño solar.`);
           spawnVFX(`-${lionDmg} HP`, 'text-amber-400 text-xs font-semibold', true);
         }
@@ -329,6 +366,8 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           const friendDmg = 15;
           nextMonsterHp = Math.max(0, nextMonsterHp - friendDmg);
           setMonster(prev => ({ ...prev, hp: nextMonsterHp }));
+          setMonsterAction('damage');
+          setTimeout(() => setMonsterAction('idle'), 500);
           addLog(`✨ Tu amigo recuperado conjura un haz de luz infligiendo ${friendDmg} de daño al Coloso.`);
           spawnVFX(`-${friendDmg} HP`, 'text-blue-300 font-bold', true);
         }
@@ -341,14 +380,24 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
 
         // 4. Ataque del monstruo
         setTimeout(() => {
+          // Animación física del monstruo
+          setMonsterAction('attack');
+          setTimeout(() => {
+            setMonsterAction('idle');
+          }, 600);
+
           if (shieldActive) {
             setShieldActive(false);
+            setPlayerAction('shield');
+            setTimeout(() => setPlayerAction('idle'), 600);
             addLog(`🛡️ ¡El Escudo de Runas absorbe por completo el ataque de ${monster.name}!`);
             spawnVFX('BLOQUEADO', 'text-cyan-400 font-bold', false);
             soundManager.playHit();
           } else {
             const damage = monster.attack;
             setPlayerHp(prev => Math.max(0, prev - damage));
+            setPlayerAction('damage');
+            setTimeout(() => setPlayerAction('idle'), 600);
             addLog(`💥 ${monster.name} arremete contra ti causando ${damage} de daño.`);
             spawnVFX(`-${damage} HP`, 'text-red-500 font-bold animate-bounce', false);
             soundManager.playHit();
@@ -514,10 +563,23 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
 
       <div className="absolute inset-0 bg-radial from-[#1e1b4b]/20 to-[#020617]/50 pointer-events-none" />
 
-      {/* Título de Combate */}
-      <div className="mt-10 md:mt-14 px-4 md:px-6 py-1 bg-red-950/40 backdrop-blur-md border border-red-500/20 rounded-full flex items-center gap-2 select-none">
-        <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_red]"></span>
-        <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-red-400">Combate de Supervivencia</span>
+      {/* Título de Combate e Interruptor de Vista */}
+      <div className="mt-10 md:mt-14 flex items-center gap-3 select-none z-20">
+        <div className="px-4 md:px-6 py-1 bg-red-950/40 backdrop-blur-md border border-red-500/20 rounded-full flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_red]"></span>
+          <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-red-400">Combate de Supervivencia</span>
+        </div>
+        
+        {/* Toggle 2D/3D */}
+        <button
+          onClick={() => {
+            soundManager.playClick();
+            setViewMode(prev => prev === '2d' ? '3d' : '2d');
+          }}
+          className="px-3 py-1 bg-indigo-950/40 hover:bg-indigo-950/70 backdrop-blur-md border border-indigo-500/20 hover:border-indigo-400/40 rounded-full flex items-center gap-1.5 text-[9px] font-black tracking-wider uppercase text-indigo-300 hover:text-indigo-100 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-lg"
+        >
+          <span>👁️ {viewMode === '2d' ? 'VISTA 3D' : 'VISTA 2D'}</span>
+        </button>
       </div>
 
       {/* Cinematic Battle Ticker */}
@@ -553,10 +615,19 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       </div>
 
       {/* Cuerpo del Combate: Héroe y Monstruo Side by Side */}
-      <div className="w-full max-w-5xl flex flex-row gap-2.5 md:gap-6 items-stretch justify-center flex-1 my-2 md:my-4 min-h-0">
+      <div className="w-full max-w-5xl flex flex-col md:flex-row gap-2.5 md:gap-6 items-stretch justify-center flex-1 my-2 md:my-4 min-h-0 overflow-y-auto md:overflow-hidden scrollbar-none py-1">
         
         {/* Lado Izquierdo: HÉROE */}
-        <div className="flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-0">
+        <motion.div
+          animate={
+            playerAction === 'attack' ? { x: [0, 40, 0], scale: [1, 1.03, 1] } :
+            playerAction === 'heal' ? { y: [0, -15, 0], scale: [1, 1.04, 1] } :
+            playerAction === 'damage' ? { x: [-8, 8, -6, 6, -4, 4, 0] } :
+            playerAction === 'shield' ? { scale: [1, 0.96, 1] } : {}
+          }
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[240px] md:min-h-0"
+        >
           {/* Indicador de transformación */}
           {isTransformed && (
             <div className="absolute top-0 right-0 left-0 h-1 bg-amber-500 animate-pulse shadow-[0_0_15px_#f59e0b]" />
@@ -615,10 +686,17 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Lado Derecho: MONSTRUO */}
-        <div className="flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-0">
+        <motion.div
+          animate={
+            monsterAction === 'attack' ? { x: [0, -40, 0], scale: [1, 1.03, 1] } :
+            monsterAction === 'damage' ? { x: [8, -8, 6, -6, 4, -4, 0] } : {}
+          }
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-[240px] md:min-h-0"
+        >
           <div className="flex justify-between items-center mb-1.5 md:mb-2">
             <span className="text-[8px] md:text-[10px] font-black tracking-widest text-red-400 uppercase">ENEMIGO</span>
             {(monster.id === 'titan' || monster.id === 'golem' || monster.id === 'colossus') ? (
@@ -632,8 +710,8 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             )}
           </div>
 
-          {/* Imagen de Enemigo */}
-          <div className="flex-1 flex items-center justify-center min-h-[90px] md:min-h-[220px] overflow-hidden">
+          {/* Imagen o Modelo 3D de Enemigo */}
+          <div className="flex-1 flex items-center justify-center min-h-[90px] md:min-h-[220px] overflow-hidden w-full h-full">
             <motion.div
               animate={{
                 scale: monster.hp <= 0 ? 0 : 1,
@@ -642,13 +720,15 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               transition={{
                 y: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
               }}
-              className="relative w-24 sm:w-28 md:w-44 h-24 sm:h-28 md:h-44 flex items-center justify-center"
+              className="relative w-full h-full flex items-center justify-center"
             >
-              {monster.image ? (
+              {viewMode === '3d' ? (
+                <Monster3D monsterId={monster.id} />
+              ) : monster.image ? (
                 <img
                   src={monster.image}
                   alt={monster.name}
-                  className="w-full h-full object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
+                  className="w-24 sm:w-28 md:w-44 h-24 sm:h-28 md:h-44 object-contain drop-shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
                 />
               ) : (
                 <Ghost className="w-12 md:w-20 h-12 md:h-20 text-white/20" />
@@ -670,7 +750,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               />
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Panel de Controles / Interfaz de Usuario */}

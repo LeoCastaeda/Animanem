@@ -5,15 +5,22 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Save, LogOut } from 'lucide-react';
 import { INITIAL_STATE, GameState, SceneId } from './types.ts';
 import IntroScene from './components/IntroScene.tsx';
 import ExplorationScene from './components/ExplorationScene.tsx';
 import CombatScene from './components/CombatScene.tsx';
 import CinematicScene from './components/CinematicScene.tsx';
+import MainMenu from './components/MainMenu.tsx';
+import Minimap from './components/Minimap.tsx';
+import { saveGame, clearSaveData } from './utils/saveSystem.ts';
+import { soundManager } from './utils/audio.ts';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
   const [activeView, setActiveView] = useState<'narrative' | 'exploration' | 'combat'>('narrative');
+  const [isInMenu, setIsInMenu] = useState(true);
+  const [showSaveToast, setShowSaveToast] = useState(false);
 
   // Mapeo automático de escenas a videos
   const SCENE_VIDEOS: Record<SceneId, string | undefined> = {
@@ -30,17 +37,6 @@ export default function App() {
     setGameState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  const ALL_MONSTERS = [
-    { id: 'shadow-1' }, { id: 'shadow-2' }, { id: 'ghoul-1' }, { id: 'ghoul-2' },
-    { id: 'beast-1' }, { id: 'beast-2' }, { id: 'guardian-1' }, { id: 'guardian-2' },
-    { id: 'wraith' }, { id: 'golem' }, { id: 'spirit' }, { id: 'ice-giant' },
-    { id: 'demon' }, { id: 'dark-knight' }, { id: 'titan' }
-  ];
-
-  const ENCOUNTER_COUNTS: Record<string, number> = {
-    'intro': 0, 'beach': 3, 'forest': 4, 'ruins': 5, 'city': 7, 'final-boss': 1, 'ending': 0,
-  };
-
   const generateEncounters = (sceneId: SceneId) => {
     switch(sceneId) {
       case 'beach':
@@ -48,9 +44,9 @@ export default function App() {
       case 'forest':
         return ['ghoul-1', 'event:pet', 'beast-1', 'event:chest'];
       case 'ruins':
-        return ['guardian-1', 'event:shrine', 'spirit', 'event:friend-relic', 'golem'];
+        return ['guardian-1', 'event:shrine', 'event:rune-alignment', 'spirit', 'event:friend-relic', 'golem'];
       case 'city':
-        return ['demon', 'event:chest', 'event:lion', 'dark-knight', 'event:shrine', 'titan', 'guardian-2'];
+        return ['demon', 'event:chest', 'event:lion', 'dark-knight', 'event:rune-alignment', 'event:shrine', 'titan', 'guardian-2'];
       case 'final-boss':
         return ['colossus'];
       default:
@@ -71,6 +67,41 @@ export default function App() {
     } else {
       setActiveView('exploration');
     }
+  };
+
+  const handleNewGame = () => {
+    clearSaveData();
+    setGameState(INITIAL_STATE);
+    setActiveView('narrative');
+    setIsInMenu(false);
+  };
+
+  const handleContinueGame = (savedState: GameState) => {
+    setGameState(savedState);
+    setIsInMenu(false);
+    if (savedState.currentScene === 'intro' || savedState.currentScene === 'ending') {
+      setActiveView('narrative');
+    } else {
+      setActiveView('exploration');
+    }
+  };
+
+  const handleSaveGame = () => {
+    saveGame(gameState);
+    soundManager.playEvent();
+    setShowSaveToast(true);
+  };
+
+  useEffect(() => {
+    if (showSaveToast) {
+      const timer = setTimeout(() => setShowSaveToast(false), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveToast]);
+
+  const handleExitToMenu = () => {
+    soundManager.playClick();
+    setIsInMenu(true);
   };
 
   const getBackgroundVideoSrc = () => {
@@ -102,50 +133,92 @@ export default function App() {
       </div>
 
       <AnimatePresence mode="wait">
-        {gameState.currentScene === 'intro' && (
-          <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10 transition-colors">
-            <IntroScene onComplete={() => changeScene('beach')} />
+        {isInMenu ? (
+          <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-20">
+            <MainMenu onNewGame={handleNewGame} onContinueGame={handleContinueGame} />
           </motion.div>
-        )}
+        ) : (
+          <>
+            {gameState.currentScene === 'intro' && (
+              <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10 transition-colors">
+                <IntroScene onComplete={() => changeScene('beach')} />
+              </motion.div>
+            )}
 
-        {activeView === 'exploration' && (
-          <motion.div key={`exploration-${gameState.currentScene}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
-            <ExplorationScene
-              gameState={gameState}
-              onCombatTrigger={() => setActiveView('combat')}
-              onSceneComplete={(nextScene) => changeScene(nextScene)}
-              onStateUpdate={updateGameState}
-            />
-          </motion.div>
-        )}
+            {activeView === 'exploration' && (
+              <motion.div key={`exploration-${gameState.currentScene}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+                <ExplorationScene
+                  gameState={gameState}
+                  onCombatTrigger={() => setActiveView('combat')}
+                  onSceneComplete={(nextScene) => changeScene(nextScene)}
+                  onStateUpdate={updateGameState}
+                />
+              </motion.div>
+            )}
 
-        {activeView === 'combat' && (
-          <motion.div key="combat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
-            <CombatScene
-              gameState={gameState}
-              onWin={(updatedState) => {
-                setGameState(updatedState);
-                setActiveView('exploration');
-              }}
-              onGameOver={() => setGameState(INITIAL_STATE)}
-            />
-          </motion.div>
-        )}
+            {activeView === 'combat' && (
+              <motion.div key="combat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+                <CombatScene
+                  gameState={gameState}
+                  onWin={(updatedState) => {
+                    setGameState(updatedState);
+                    setActiveView('exploration');
+                  }}
+                  onGameOver={() => {
+                    clearSaveData();
+                    setGameState(INITIAL_STATE);
+                    setIsInMenu(true);
+                  }}
+                />
+              </motion.div>
+            )}
 
-        {gameState.currentScene === 'ending' && (
-          <motion.div key="ending" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
-            <CinematicScene
-              type="ending"
-              onComplete={() => setGameState(INITIAL_STATE)}
-            />
-          </motion.div>
+            {gameState.currentScene === 'ending' && (
+              <motion.div key="ending" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+                <CinematicScene
+                  type="ending"
+                  onComplete={() => {
+                    clearSaveData();
+                    setGameState(INITIAL_STATE);
+                    setIsInMenu(true);
+                  }}
+                />
+              </motion.div>
+            )}
+          </>
         )}
       </AnimatePresence>
 
       {/* HUD Overlay */}
-      {gameState.currentScene !== 'intro' && gameState.currentScene !== 'ending' && (
-        <HUD player={gameState.player} scene={gameState.currentScene} />
+      {!isInMenu && gameState.currentScene !== 'intro' && gameState.currentScene !== 'ending' && (
+        <HUD 
+          player={gameState.player} 
+          scene={gameState.currentScene} 
+          onSave={handleSaveGame} 
+          onExitToMenu={handleExitToMenu} 
+        />
       )}
+
+      {/* Minimap Overlay */}
+      {!isInMenu && activeView === 'exploration' && gameState.currentScene !== 'intro' && gameState.currentScene !== 'ending' && (
+        <Minimap gameState={gameState} />
+      )}
+
+      {/* Toast de Guardado */}
+      <AnimatePresence>
+        {showSaveToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-100 px-6 py-3 rounded-xl border border-emerald-500/30 bg-emerald-950/80 backdrop-blur-md shadow-[0_0_20px_rgba(16,185,129,0.3)] text-emerald-200 text-xs font-bold uppercase tracking-widest flex items-center gap-2.5 pointer-events-none"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            ¡Partida guardada correctamente!
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Post-Processing Effects */}
       <div className="absolute inset-0 pointer-events-none z-100 scanlines opacity-10"></div>
@@ -154,7 +227,17 @@ export default function App() {
   );
 }
 
-function HUD({ player, scene }: { player: any, scene: string }) {
+function HUD({ 
+  player, 
+  scene, 
+  onSave, 
+  onExitToMenu 
+}: { 
+  player: any; 
+  scene: string; 
+  onSave: () => void; 
+  onExitToMenu: () => void; 
+}) {
   return (
     <div className="absolute top-0 left-0 w-full p-3 md:p-8 flex justify-between items-start pointer-events-none z-60">
       <div className="flex gap-2 md:gap-4">
@@ -212,11 +295,34 @@ function HUD({ player, scene }: { player: any, scene: string }) {
         </div>
       </div>
       
-      <div className="text-right">
-        <h3 className="text-base sm:text-2xl md:text-3xl font-black italic tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white to-white/40 leading-none">
-          {scene.replace('-', ' ')}
-        </h3>
-        <p className="text-[7px] sm:text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-indigo-400 font-bold mt-0.5 md:mt-1">THE SHATTERED ISLES</p>
+      <div className="text-right flex flex-col items-end gap-2">
+        <div>
+          <h3 className="text-base sm:text-2xl md:text-3xl font-black italic tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white to-white/40 leading-none">
+            {scene.replace('-', ' ')}
+          </h3>
+          <p className="text-[7px] sm:text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-indigo-400 font-bold mt-0.5 md:mt-1">THE SHATTERED ISLES</p>
+        </div>
+
+        {/* Botones de guardado y salida */}
+        <div className="flex gap-2 mt-1 md:mt-2 pointer-events-auto">
+          <button
+            onClick={onSave}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg frosted-glass border border-white/20 hover:border-indigo-400 hover:bg-indigo-500/10 active:scale-95 transition-all text-[9px] md:text-xs font-bold uppercase tracking-wider text-white shadow-lg cursor-pointer"
+            title="Guardar partida"
+          >
+            <Save className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="hidden sm:inline">Guardar</span>
+          </button>
+          
+          <button
+            onClick={onExitToMenu}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg frosted-glass border border-white/20 hover:border-red-400 hover:bg-red-500/10 active:scale-95 transition-all text-[9px] md:text-xs font-bold uppercase tracking-wider text-white/85 hover:text-white shadow-lg cursor-pointer"
+            title="Salir al menú principal"
+          >
+            <LogOut className="w-3.5 h-3.5 text-red-400" />
+            <span className="hidden sm:inline">Salir</span>
+          </button>
+        </div>
       </div>
     </div>
   );
