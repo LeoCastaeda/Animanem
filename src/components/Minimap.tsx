@@ -24,7 +24,7 @@ export default function Minimap({ gameState }: MinimapProps) {
   const [hoveredElement, setHoveredElement] = useState<{
     name: string;
     desc: string;
-    type: 'player' | 'enemy' | 'mission' | 'building' | 'npc';
+    type: 'player' | 'enemy' | 'mission' | 'rune' | 'building' | 'npc';
     x: number;
     y: number;
   } | null>(null);
@@ -188,6 +188,9 @@ export default function Minimap({ gameState }: MinimapProps) {
     const encounter = plannedEncounters[index - 1];
     if (!encounter) return 'unknown';
     
+    if (encounter.startsWith('event:rune-alignment')) {
+      return 'rune';
+    }
     if (encounter.startsWith('event:')) {
       return 'mission';
     }
@@ -233,12 +236,12 @@ export default function Minimap({ gameState }: MinimapProps) {
     <>
       {/* 1. COMPACT HUD MINIMAP (Top Left Corner) */}
       <div 
-        className="fixed top-28 left-4 md:top-36 md:left-8 z-50 pointer-events-auto select-none animate-fade-in"
+        className="fixed top-24 left-3 sm:top-28 sm:left-4 md:top-36 md:left-8 z-50 pointer-events-auto select-none animate-fade-in"
         style={{ contentVisibility: 'auto' }}
       >
         <div 
           onClick={toggleExpand}
-          className="w-24 h-24 md:w-32 md:h-32 rounded-xl border border-white/20 bg-slate-950/80 backdrop-blur-md overflow-hidden relative cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] group hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-300"
+          className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-xl border border-white/20 bg-slate-950/80 backdrop-blur-md overflow-hidden relative cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.5)] group hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all duration-300"
         >
           {/* Grid lines background */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:10px_10px]" />
@@ -287,9 +290,10 @@ export default function Minimap({ gameState }: MinimapProps) {
               
               if (idx === 0 || idx === pathPoints.length - 1) return null;
 
-              let colorClass = "fill-slate-500 stroke-slate-400";
-              if (type === 'enemy') colorClass = isVisited ? "fill-red-950/60 stroke-red-800/40" : "fill-red-600/30 stroke-red-500 stroke-[1px]";
-              if (type === 'mission') colorClass = isVisited ? "fill-purple-950/60 stroke-purple-800/40" : "fill-purple-500/30 stroke-purple-400 stroke-[1px]";
+               let colorClass = "fill-slate-500 stroke-slate-400";
+               if (type === 'enemy') colorClass = isVisited ? "fill-red-950/60 stroke-red-800/40" : "fill-red-600/30 stroke-red-500 stroke-[1px]";
+               if (type === 'mission') colorClass = isVisited ? "fill-purple-950/60 stroke-purple-800/40" : "fill-purple-500/30 stroke-purple-400 stroke-[1px]";
+               if (type === 'rune') colorClass = isVisited ? "fill-cyan-950/60 stroke-cyan-800/40" : "fill-cyan-500/30 stroke-cyan-300 stroke-[1px]";
               
               if (isCurrent) return null;
 
@@ -352,7 +356,7 @@ export default function Minimap({ gameState }: MinimapProps) {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 15 }}
               transition={{ type: 'spring', duration: 0.5, bounce: 0.15 }}
-              className="w-full max-w-4xl h-[90vh] md:h-[80vh] rounded-3xl frosted-glass border-white/10 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative"
+              className="w-full max-w-4xl h-[calc(100dvh-2rem)] md:h-[80vh] rounded-2xl md:rounded-3xl frosted-glass border-white/10 shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative"
             >
               {/* Top border glow line */}
               <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500" />
@@ -461,6 +465,11 @@ export default function Minimap({ gameState }: MinimapProps) {
                           ? "fill-purple-950/80 stroke-purple-900/30 text-purple-500/20"
                           : "fill-purple-950/40 stroke-purple-500 stroke-[1.5px] hover:fill-purple-900/20";
                         iconColor = isVisited ? "text-purple-500/30" : "text-purple-400";
+                      } else if (type === 'rune') {
+                        colorClass = isVisited
+                          ? "fill-cyan-950/80 stroke-cyan-900/30 text-cyan-500/20"
+                          : "fill-cyan-950/40 stroke-cyan-300 stroke-[1.5px] hover:fill-cyan-900/20";
+                        iconColor = isVisited ? "text-cyan-500/30" : "text-cyan-300";
                       }
 
                       if (isCurrent) return null;
@@ -486,6 +495,9 @@ export default function Minimap({ gameState }: MinimapProps) {
                           )}
                           {type === 'mission' && (
                             <Gift className={iconColor} style={{ transform: `translate(${p.x - 3}px, ${p.y - 3}px)` }} size={6} />
+                          )}
+                          {type === 'rune' && (
+                            <Sparkles className={iconColor} style={{ transform: `translate(${p.x - 3}px, ${p.y - 3}px)` }} size={6} />
                           )}
                           {type === 'start' && (
                             <MapPin className={iconColor} style={{ transform: `translate(${p.x - 3.5}px, ${p.y - 4}px)` }} size={7} />
@@ -559,6 +571,7 @@ export default function Minimap({ gameState }: MinimapProps) {
                             ${hoveredElement.type === 'player' ? 'bg-indigo-400' : ''}
                             ${hoveredElement.type === 'enemy' ? 'bg-red-400' : ''}
                             ${hoveredElement.type === 'mission' ? 'bg-purple-400' : ''}
+                            ${hoveredElement.type === 'rune' ? 'bg-cyan-300' : ''}
                             ${hoveredElement.type === 'building' ? 'bg-amber-400' : ''}
                             ${hoveredElement.type === 'npc' ? 'bg-emerald-400' : ''}
                           `} />
@@ -584,6 +597,10 @@ export default function Minimap({ gameState }: MinimapProps) {
                   <div className="space-y-2.5">
                     <h4 className="text-[10px] font-black tracking-wider text-indigo-400 uppercase">Leyenda</h4>
                     <div className="grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-wider">
+                      <div className="flex items-center gap-2 text-white/70">
+                        <span className="w-2.5 h-2.5 rounded-full bg-cyan-300 border border-white/20 shrink-0" />
+                        <span>Runas</span>
+                      </div>
                       <div className="flex items-center gap-2 text-white/70">
                         <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 border border-white/20 shrink-0" />
                         <span>Jugador</span>

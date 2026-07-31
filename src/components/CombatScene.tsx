@@ -626,7 +626,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             playerAction === 'shield' ? { scale: [1, 0.96, 1] } : {}
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-60 md:min-h-0"
+          className="flex-none md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-37.5 md:min-h-0"
         >
           {/* Indicador de transformación */}
           {isTransformed && (
@@ -650,7 +650,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           </div>
 
           {/* Canvas 3D Procedural */}
-          <div className="flex-1 min-h-22.5 md:min-h-55 flex items-center justify-center overflow-hidden">
+          <div className="flex-1 min-h-18 sm:min-h-22.5 md:min-h-55 flex items-center justify-center overflow-hidden">
             <Character3D isTransformed={isTransformed} />
           </div>
 
@@ -695,7 +695,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             monsterAction === 'damage' ? { x: [8, -8, 6, -6, 4, -4, 0] } : {}
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-60 md:min-h-0"
+          className="flex-none md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-37.5 md:min-h-0"
         >
           <div className="flex justify-between items-center mb-1.5 md:mb-2">
             <span className="text-[8px] md:text-[10px] font-black tracking-widest text-red-400 uppercase">ENEMIGO</span>
@@ -711,7 +711,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           </div>
 
           {/* Imagen o Modelo 3D de Enemigo */}
-          <div className="flex-1 flex items-center justify-center min-h-22.5 md:min-h-55 overflow-hidden w-full h-full">
+          <div className="flex-1 flex items-center justify-center min-h-18 sm:min-h-22.5 md:min-h-55 overflow-hidden w-full h-full">
             <motion.div
               animate={{
                 scale: monster.hp <= 0 ? 0 : 1,
@@ -754,7 +754,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       </div>
 
       {/* Panel de Controles / Interfaz de Usuario */}
-      <div className="w-full max-w-md relative z-20 mb-4">
+      <div className="w-full max-w-md relative z-20 mb-2 md:mb-4 px-1 sm:px-0">
         <AnimatePresence mode="wait">
           {showItems ? (
             /* Menú de Objetos (Inventario) */
@@ -810,13 +810,13 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -10, opacity: 0 }}
-              className="grid grid-cols-2 gap-3 w-full px-2"
+              className="grid grid-cols-2 gap-2 sm:gap-3 w-full px-0 sm:px-2"
             >
               {/* ATACAR */}
               <button
                 onClick={handleAttack}
                 disabled={turn !== 'player' || isAnimating || monster.hp <= 0}
-                className="flex items-center justify-center gap-2 py-3 frosted-glass border-white/20 hover:bg-indigo-600/10 hover:border-indigo-500/30 rounded-xl transition-all active:scale-95 disabled:opacity-30 group shadow-md cursor-pointer"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 min-h-11 py-2.5 sm:py-3 frosted-glass border-white/20 hover:bg-indigo-600/10 hover:border-indigo-500/30 rounded-xl transition-all active:scale-95 disabled:opacity-30 group shadow-md cursor-pointer"
               >
                 <Sword className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-black italic tracking-widest uppercase">ATACAR</span>
@@ -826,7 +826,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               <button
                 onClick={handleHeal}
                 disabled={turn !== 'player' || isAnimating || monster.hp <= 0}
-                className="flex items-center justify-center gap-2 py-3 frosted-glass border-white/20 hover:bg-emerald-600/10 hover:border-emerald-500/30 rounded-xl transition-all active:scale-95 disabled:opacity-30 group shadow-md cursor-pointer"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 min-h-11 py-2.5 sm:py-3 frosted-glass border-white/20 hover:bg-emerald-600/10 hover:border-emerald-500/30 rounded-xl transition-all active:scale-95 disabled:opacity-30 group shadow-md cursor-pointer"
               >
                 <Heart className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
                 <span className="text-[10px] font-black italic tracking-widest uppercase">CURAR</span>
@@ -839,7 +839,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
                   setShowItems(true);
                 }}
                 disabled={turn !== 'player' || isAnimating || monster.hp <= 0}
-                className="flex items-center justify-center gap-2 py-3 frosted-glass border-white/20 hover:bg-purple-600/10 hover:border-purple-500/30 rounded-xl transition-all active:scale-95 disabled:opacity-30 group shadow-md cursor-pointer text-xs font-black italic"
+                className="flex items-center justify-center gap-1.5 sm:gap-2 min-h-11 py-2.5 sm:py-3 frosted-glass border-white/20 hover:bg-purple-600/10 hover:border-purple-500/30 rounded-xl transition-all active:scale-95 disabled:opacity-30 group shadow-md cursor-pointer text-xs font-black italic"
               >
                 <Briefcase className="w-4 h-4 text-purple-400" />
                 <span className="text-[10px] font-black italic tracking-widest uppercase">MOCHILA ({inventory.length})</span>
@@ -849,7 +849,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               <button
                 onClick={handleAscension}
                 disabled={!gameState.player.transformationUnlocked || playerEnergy < 100 || isTransformed || turn !== 'player' || isAnimating || monster.hp <= 0}
-                className={`flex items-center justify-center gap-2 py-3 rounded-xl transition-all font-black italic text-[10px] tracking-widest uppercase border select-none
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 min-h-11 py-2.5 sm:py-3 rounded-xl transition-all font-black italic text-[10px] tracking-widest uppercase border select-none
                   ${!gameState.player.transformationUnlocked 
                     ? 'bg-zinc-800/10 border-white/5 opacity-25 cursor-not-allowed text-white/30' 
                     : playerEnergy < 100
@@ -869,7 +869,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
 
 
       {/* Aliados flotantes o HUD lateral */}
-      <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-6 pointer-events-none">
+      <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden lg:flex flex-col gap-6 pointer-events-none">
         {gameState.hasPet && (
           <motion.div 
             initial={{ opacity: 0, x: -20 }}

@@ -118,7 +118,7 @@ interface Character3DProps {
 
 export default function Character3D({ isTransformed }: Character3DProps) {
   return (
-    <div className="w-full h-full min-h-[220px] max-h-[300px] flex items-center justify-center relative select-none">
+    <div className="w-full h-[72px] sm:h-[110px] md:h-full min-h-[64px] max-h-[100px] sm:max-h-[140px] md:min-h-[220px] md:max-h-[300px] flex items-center justify-center relative select-none">
       <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.6} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />

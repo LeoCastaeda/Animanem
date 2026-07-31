@@ -425,14 +425,14 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
         ))}
       </div>
 
-      <div className="z-10 text-center px-6 w-full max-w-lg">
+      <div className="z-10 text-center px-3 sm:px-6 w-full max-w-lg max-h-full overflow-y-auto overscroll-contain py-4 scrollbar-thin scrollbar-indigo-500/30">
         {/* Renderizado de Evento Interactivo */}
         {isEvent && !isAllDone ? (
           <motion.div
             key={`event-${currentEncounterId}`}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="frosted-glass border-white/20 p-5 md:p-8 rounded-2xl md:rounded-3xl text-center relative overflow-hidden shadow-2xl"
+            className="frosted-glass border-white/20 p-4 sm:p-5 md:p-8 rounded-2xl md:rounded-3xl text-center relative overflow-hidden shadow-2xl"
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-indigo-500 via-purple-500 to-pink-500" />
             
@@ -454,13 +454,13 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="space-y-6"
+                  className="space-y-4 md:space-y-6"
                 >
                   <p className="text-xs md:text-sm text-indigo-100/70 leading-relaxed font-medium">
                     {eventData.desc}
                   </p>
 
-                  <div className="w-full bg-slate-950/70 border border-indigo-500/20 rounded-2xl p-4 md:p-6 flex flex-col gap-4 relative overflow-hidden select-none">
+                  <div className="w-full bg-slate-950/70 border border-indigo-500/20 rounded-2xl p-3 sm:p-4 md:p-6 flex flex-col gap-3 md:gap-4 relative overflow-hidden select-none">
                     {/* Barra de alineación */}
                     <div className="relative w-full h-8 bg-slate-900 border border-white/10 rounded-lg overflow-hidden flex items-center shadow-inner">
                       {/* Zona objetivo (Sweet Spot) */}
@@ -475,9 +475,9 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
                       />
                     </div>
 
-                    <div className="flex justify-between items-center text-[8px] sm:text-[9px] font-black tracking-wider text-slate-400 uppercase">
+                    <div className="flex justify-between items-center gap-2 text-[7px] sm:text-[9px] font-black tracking-wider text-slate-400 uppercase">
                       <span>0%</span>
-                      <span className="text-emerald-400/80 animate-pulse">ZONA DE RESONANCIA ({targetStart}% - {targetStart + 20}%)</span>
+                      <span className="text-emerald-400/80 animate-pulse text-center">ZONA DE RESONANCIA</span>
                       <span>100%</span>
                     </div>
 
@@ -497,7 +497,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
                   <button
                     onClick={handleStopRune}
                     disabled={isStopped}
-                    className="w-full py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 border border-indigo-400/40 hover:scale-102 active:scale-98 disabled:opacity-50 transition-all rounded-xl text-white font-black italic tracking-widest uppercase text-[10px] md:text-xs shadow-lg cursor-pointer"
+                    className="w-full min-h-12 py-3 md:py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 border border-indigo-400/40 hover:scale-102 active:scale-98 disabled:opacity-50 transition-all rounded-xl text-white font-black italic tracking-widest uppercase text-[10px] md:text-xs shadow-lg cursor-pointer"
                   >
                     {isStopped ? 'Sincronizando...' : 'Estabilizar Runa (Click!)'}
                   </button>

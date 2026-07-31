@@ -9,7 +9,7 @@ import { Trophy, Star, Sparkles } from 'lucide-react';
 export default function CinematicScene({ type, onComplete }: { type: 'ending', onComplete: () => void }) {
   return (
     <motion.div 
-      className="flex flex-col items-center justify-center h-full p-8 text-center bg-black"
+      className="flex flex-col items-center justify-center h-full p-8 text-center bg-slate-950/40 backdrop-blur-xs relative"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

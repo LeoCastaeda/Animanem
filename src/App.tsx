@@ -30,7 +30,7 @@ export default function App() {
     'ruins': '/video/bosque_de_las_almas.mp4',
     'city': '/video/city.mp4',
     'final-boss': '/video/final-boss.mp4',
-    'ending': undefined,
+    'ending': '/video/final.mp4',
   };
 
   const updateGameState = useCallback((updates: Partial<GameState>) => {
