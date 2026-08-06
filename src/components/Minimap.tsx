@@ -7,16 +7,18 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Maximize2, Minimize2, MapPin, Skull, Gift, Home, User, Sparkles } from 'lucide-react';
 import { GameState, SceneId } from '../types.ts';
+import { MapElement, VisualState, NodeType, TooltipData } from './minimap/types';
+import { NODE_COLOR_CLASSES, ICON_COLOR_CLASSES, ENCOUNTER_ICON_MAP } from './minimap/constants';
+import {
+  getPathNodeVisualState,
+  getNodeColorClasses,
+  getIconColorClasses,
+  shouldRenderMapElement,
+  getVisitedPathSegment
+} from './minimap/helpers';
 
 interface MinimapProps {
   gameState: GameState;
-}
-
-interface MapElement {
-  name: string;
-  x: number; // 0-100
-  y: number; // 0-100
-  desc: string;
 }
 
 export default function Minimap({ gameState }: MinimapProps) {
@@ -285,15 +287,12 @@ export default function Minimap({ gameState }: MinimapProps) {
             {/* Draw Path Nodes */}
             {pathPoints.map((p, idx) => {
               const type = getPathNodeType(idx);
-              const isVisited = idx < currentEncounterId;
+              const visualState = getPathNodeVisualState(idx, currentEncounterId);
               const isCurrent = idx === currentEncounterId;
               
               if (idx === 0 || idx === pathPoints.length - 1) return null;
 
-               let colorClass = "fill-slate-500 stroke-slate-400";
-               if (type === 'enemy') colorClass = isVisited ? "fill-red-950/60 stroke-red-800/40" : "fill-red-600/30 stroke-red-500 stroke-[1px]";
-               if (type === 'mission') colorClass = isVisited ? "fill-purple-950/60 stroke-purple-800/40" : "fill-purple-500/30 stroke-purple-400 stroke-[1px]";
-               if (type === 'rune') colorClass = isVisited ? "fill-cyan-950/60 stroke-cyan-800/40" : "fill-cyan-500/30 stroke-cyan-300 stroke-[1px]";
+              const colorClass = getNodeColorClasses(type, visualState);
               
               if (isCurrent) return null;
 
@@ -304,6 +303,9 @@ export default function Minimap({ gameState }: MinimapProps) {
                   cy={p.y}
                   r="3.5"
                   className={colorClass}
+                  data-state={visualState}
+                  data-encounter-type={type}
+                  data-encounter-index={idx}
                 />
               );
             })}
@@ -442,7 +444,7 @@ export default function Minimap({ gameState }: MinimapProps) {
                     {/* Draw Path Nodes */}
                     {pathPoints.map((p, idx) => {
                       const type = getPathNodeType(idx);
-                      const isVisited = idx < currentEncounterId;
+                      const visualState = getPathNodeVisualState(idx, currentEncounterId);
                       const isCurrent = idx === currentEncounterId;
                       
                       let colorClass = "fill-slate-700 stroke-slate-500";
@@ -450,26 +452,15 @@ export default function Minimap({ gameState }: MinimapProps) {
                       let r = 5.5;
 
                       if (type === 'start') {
-                        colorClass = "fill-indigo-950/50 stroke-indigo-400";
-                        iconColor = "text-indigo-400";
+                        colorClass = getNodeColorClasses('start', visualState);
+                        iconColor = getIconColorClasses('start', visualState);
                       } else if (type === 'end') {
-                        colorClass = "fill-emerald-950/50 stroke-emerald-400";
-                        iconColor = "text-emerald-400";
-                      } else if (type === 'enemy') {
-                        colorClass = isVisited
-                          ? "fill-red-950/80 stroke-red-900/30 text-red-500/20"
-                          : "fill-red-950/40 stroke-red-500 stroke-[1.5px] hover:fill-red-900/20";
-                        iconColor = isVisited ? "text-red-500/30" : "text-red-400";
-                      } else if (type === 'mission') {
-                        colorClass = isVisited
-                          ? "fill-purple-950/80 stroke-purple-900/30 text-purple-500/20"
-                          : "fill-purple-950/40 stroke-purple-500 stroke-[1.5px] hover:fill-purple-900/20";
-                        iconColor = isVisited ? "text-purple-500/30" : "text-purple-400";
-                      } else if (type === 'rune') {
-                        colorClass = isVisited
-                          ? "fill-cyan-950/80 stroke-cyan-900/30 text-cyan-500/20"
-                          : "fill-cyan-950/40 stroke-cyan-300 stroke-[1.5px] hover:fill-cyan-900/20";
-                        iconColor = isVisited ? "text-cyan-500/30" : "text-cyan-300";
+                        colorClass = getNodeColorClasses('end', visualState);
+                        iconColor = getIconColorClasses('end', visualState);
+                      } else {
+                        // Use helper functions for enemy/mission/rune types
+                        colorClass = getNodeColorClasses(type, visualState);
+                        iconColor = getIconColorClasses(type, visualState);
                       }
 
                       if (isCurrent) return null;
@@ -489,6 +480,9 @@ export default function Minimap({ gameState }: MinimapProps) {
                             cy={p.y}
                             r={r}
                             className={`${colorClass} transition-colors duration-200`}
+                            data-state={visualState}
+                            data-encounter-type={type}
+                            data-encounter-index={idx}
                           />
                           {type === 'enemy' && (
                             <Skull className={iconColor} style={{ transform: `translate(${p.x - 3}px, ${p.y - 3}px)` }} size={6} />
