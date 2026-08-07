@@ -393,7 +393,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
       setCameraZ(isMobile ? 2.0 : 3.8);
       setSceneScale(isMobile ? 1.5 : 1);
-      setSceneBaseY(isMobile ? -0.25 : 0);
+      setSceneBaseY(isMobile ? -0.45 : 0);
     };
 
     updateCamera();
@@ -444,7 +444,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
   }
 
   return (
-    <div className="w-full h-24 sm:h-32 md:h-full min-h-20 max-h-40 sm:max-h-48 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
+    <div className="w-full h-32 sm:h-40 md:h-full min-h-24 max-h-52 sm:max-h-60 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
       <Canvas camera={{ position: [0, 0, cameraZ], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.5} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
