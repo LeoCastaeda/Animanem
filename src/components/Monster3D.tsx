@@ -364,6 +364,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
   const [hasModel, setHasModel] = useState<boolean | null>(null);
   const [cameraZ, setCameraZ] = useState(3.8);
   const [sceneScale, setSceneScale] = useState(1);
+  const [sceneBaseY, setSceneBaseY] = useState(0);
 
   useEffect(() => {
     if (!modelPath) {
@@ -392,6 +393,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
       setCameraZ(isMobile ? 2.0 : 3.8);
       setSceneScale(isMobile ? 1.5 : 1);
+      setSceneBaseY(isMobile ? -0.25 : 0);
     };
 
     updateCamera();
@@ -430,12 +432,12 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
     useFrame((state, delta) => {
       if (group.current) {
         group.current.rotation.y += delta * 0.25;
-        group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
+        group.current.position.y = sceneBaseY + Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
       }
     });
 
     return (
-      <group ref={group} scale={[sceneScale, sceneScale, sceneScale]}>
+      <group ref={group} position={[0, sceneBaseY, 0]} scale={[sceneScale, sceneScale, sceneScale]}>
         <primitive object={scene} />
       </group>
     );
