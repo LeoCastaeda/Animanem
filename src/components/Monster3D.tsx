@@ -393,7 +393,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
       const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
       setCameraZ(isMobile ? 2.0 : 3.8);
       setSceneScale(isMobile ? 1.5 : 1);
-      setSceneBaseY(isMobile ? -0.45 : 0);
+      setSceneBaseY(isMobile ? -0.8 : 0);
     };
 
     updateCamera();
@@ -432,7 +432,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
     useFrame((state, delta) => {
       if (group.current) {
         group.current.rotation.y += delta * 0.25;
-        group.current.position.y = sceneBaseY + Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
+        group.current.position.y = sceneBaseY + Math.sin(state.clock.getElapsedTime() * 1.1) * 0.04;
       }
     });
 
