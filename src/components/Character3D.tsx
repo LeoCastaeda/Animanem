@@ -117,8 +117,8 @@ interface Character3DProps {
   modelPath?: string;
 }
 
-class ModelErrorBoundary extends Component<{ fallback: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { fallback: React.ReactNode }) {
+class ModelErrorBoundary extends Component<{ fallback: React.ReactNode; children?: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { fallback: React.ReactNode; children?: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -140,6 +140,20 @@ class ModelErrorBoundary extends Component<{ fallback: React.ReactNode }, { hasE
 
 export default function Character3D({ isTransformed, modelPath }: Character3DProps) {
   const [hasModel, setHasModel] = useState<boolean | null>(null);
+  const [cameraZ, setCameraZ] = useState(3.8);
+  const [sceneScale, setSceneScale] = useState(1);
+
+  useEffect(() => {
+    const updateCamera = () => {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      setCameraZ(isMobile ? 2.0 : 3.8);
+      setSceneScale(isMobile ? 1.5 : 1);
+    };
+
+    updateCamera();
+    window.addEventListener('resize', updateCamera);
+    return () => window.removeEventListener('resize', updateCamera);
+  }, []);
 
   useEffect(() => {
     if (!modelPath) {
@@ -186,14 +200,14 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
     });
 
     return (
-      <group ref={group}>
+      <group ref={group} scale={[sceneScale, sceneScale, sceneScale]}>
         <primitive object={scene} />
       </group>
     );
   }
   return (
-    <div className="w-full h-18 sm:h-27.5 md:h-full min-h-16 max-h-25 sm:max-h-35 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
-      <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
+    <div className="w-full h-24 sm:h-32 md:h-full min-h-20 max-h-40 sm:max-h-48 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
+      <Canvas camera={{ position: [0, 0, cameraZ], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.6} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
