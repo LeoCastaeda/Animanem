@@ -16,6 +16,7 @@ export interface PlayerStats {
   energy: number;
   maxEnergy: number;
   shieldActive: boolean;
+  heroModelPath: string;
 }
 
 export interface Monster {
@@ -27,6 +28,7 @@ export interface Monster {
   attack: number;
   type: 'basic' | 'boss';
   image?: string;
+  modelPath?: string;
 }
 
 export interface GameState {
@@ -54,6 +56,7 @@ export const INITIAL_STATE: GameState = {
     energy: 0,
     maxEnergy: 100,
     shieldActive: false,
+    heroModelPath: '/models/hero.glb',
   },
   monstersDefeated: 0,
   hasPet: false,

@@ -69,9 +69,15 @@ export default function App() {
     }
   };
 
-  const handleNewGame = () => {
+  const handleNewGame = (heroModelPath: string) => {
     clearSaveData();
-    setGameState(INITIAL_STATE);
+    setGameState({
+      ...INITIAL_STATE,
+      player: {
+        ...INITIAL_STATE.player,
+        heroModelPath,
+      },
+    });
     setActiveView('narrative');
     setIsInMenu(false);
   };

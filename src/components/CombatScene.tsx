@@ -29,26 +29,26 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
   
   // Lista de monstruos del juego
   const ALL_MONSTERS: Monster[] = [
-    { id: 'shadow-1', name: 'Sombra Ferina', level: 1, hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png' },
-    { id: 'shadow-2', name: 'Sombra Nocturna', level: 2, hp: 45, maxHp: 45, attack: 11, type: 'basic', image: '/images/shadow.png' },
-    { id: 'ghoul-1', name: 'Ghoul de Ceniza', level: 2, hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png' },
-    { id: 'ghoul-2', name: 'Ghoul Antiguo', level: 3, hp: 65, maxHp: 65, attack: 13, type: 'basic', image: '/images/ghoul.png' },
-    { id: 'beast-1', name: 'Bestia Mágica', level: 3, hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png' },
-    { id: 'beast-2', name: 'Bestia Salvaje', level: 4, hp: 85, maxHp: 85, attack: 16, type: 'basic', image: '/images/beast.png' },
-    { id: 'guardian-1', name: 'Guardián de Piedra', level: 4, hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png' },
-    { id: 'guardian-2', name: 'Guardián Arcano', level: 5, hp: 110, maxHp: 110, attack: 20, type: 'basic', image: '/images/guardian.png' },
-    { id: 'wraith', name: 'Espectro Errante', level: 3, hp: 55, maxHp: 55, attack: 14, type: 'basic', image: '/images/wraith.png' },
-    { id: 'golem', name: 'Golem de Ruinas', level: 5, hp: 120, maxHp: 120, attack: 22, type: 'basic', image: '/images/golem.png' },
-    { id: 'spirit', name: 'Espíritu Antiguo', level: 4, hp: 70, maxHp: 70, attack: 13, type: 'basic', image: '/images/spirit.png' },
-    { id: 'ice-giant', name: 'Gigante de Hielo', level: 4, hp: 95, maxHp: 95, attack: 17, type: 'basic', image: '/images/giant.png' },
-    { id: 'demon', name: 'Demonio Errante', level: 5, hp: 75, maxHp: 75, attack: 15, type: 'basic', image: '/images/demon.png' },
-    { id: 'dark-knight', name: 'Caballero Oscuro', level: 6, hp: 105, maxHp: 105, attack: 19, type: 'basic', image: '/images/knight.png' },
-    { id: 'titan', name: 'Titán Maldito', level: 7, hp: 130, maxHp: 130, attack: 23, type: 'basic', image: '/images/titan.png' },
+    { id: 'shadow-1', name: 'Sombra Ferina', level: 1, hp: 40, maxHp: 40, attack: 10, type: 'basic', image: '/images/shadow.png', modelPath: '/models/shadow.glb' },
+    { id: 'shadow-2', name: 'Sombra Nocturna', level: 2, hp: 45, maxHp: 45, attack: 11, type: 'basic', image: '/images/shadow.png', modelPath: '/models/shadow.glb' },
+    { id: 'ghoul-1', name: 'Ghoul de Ceniza', level: 2, hp: 60, maxHp: 60, attack: 12, type: 'basic', image: '/images/ghoul.png', modelPath: '/models/ghoul.glb' },
+    { id: 'ghoul-2', name: 'Ghoul Antiguo', level: 3, hp: 65, maxHp: 65, attack: 13, type: 'basic', image: '/images/ghoul.png', modelPath: '/models/ghoul.glb' },
+    { id: 'beast-1', name: 'Bestia Mágica', level: 3, hp: 80, maxHp: 80, attack: 15, type: 'basic', image: '/images/beast.png', modelPath: '/models/beast.glb' },
+    { id: 'beast-2', name: 'Bestia Salvaje', level: 4, hp: 85, maxHp: 85, attack: 16, type: 'basic', image: '/images/beast.png', modelPath: '/models/beast.glb' },
+    { id: 'guardian-1', name: 'Guardián de Piedra', level: 4, hp: 100, maxHp: 100, attack: 18, type: 'basic', image: '/images/guardian.png', modelPath: '/models/guardian.glb' },
+    { id: 'guardian-2', name: 'Guardián Arcano', level: 5, hp: 110, maxHp: 110, attack: 20, type: 'basic', image: '/images/guardian.png', modelPath: '/models/guardian.glb' },
+    { id: 'wraith', name: 'Espectro Errante', level: 3, hp: 55, maxHp: 55, attack: 14, type: 'basic', image: '/images/wraith.png', modelPath: '/models/wraith.glb' },
+    { id: 'golem', name: 'Golem de Ruinas', level: 5, hp: 120, maxHp: 120, attack: 22, type: 'basic', image: '/images/golem.png', modelPath: '/models/golem.glb' },
+    { id: 'spirit', name: 'Espíritu Antiguo', level: 4, hp: 70, maxHp: 70, attack: 13, type: 'basic', image: '/images/spirit.png', modelPath: '/models/spirit.glb' },
+    { id: 'ice-giant', name: 'Gigante de Hielo', level: 4, hp: 95, maxHp: 95, attack: 17, type: 'basic', image: '/images/giant.png', modelPath: '/models/giant.glb' },
+    { id: 'demon', name: 'Demonio Errante', level: 5, hp: 75, maxHp: 75, attack: 15, type: 'basic', image: '/images/demon.png', modelPath: '/models/demon.glb' },
+    { id: 'dark-knight', name: 'Caballero Oscuro', level: 6, hp: 105, maxHp: 105, attack: 19, type: 'basic', image: '/images/knight.png', modelPath: '/models/dark-knight.glb' },
+    { id: 'titan', name: 'Titán Maldito', level: 7, hp: 130, maxHp: 130, attack: 23, type: 'basic', image: '/images/titan.png', modelPath: '/models/titan.glb' },
   ];
 
   const [monster, setMonster] = useState<Monster>(() => {
     if (isFinalBoss) {
-      return { id: 'colossus', name: 'COLOSO DEL CAOS', level: 10, hp: 500, maxHp: 500, attack: 25, type: 'boss', image: '/images/colossus.png' };
+      return { id: 'colossus', name: 'COLOSO DEL CAOS', level: 10, hp: 500, maxHp: 500, attack: 25, type: 'boss', image: '/images/colossus.png', modelPath: '/models/colossus.glb' };
     }
     const monsterIds = gameState.plannedEncounters[gameState.currentScene] || [];
     const currentMonsterId = monsterIds[gameState.currentEncounterId] || monsterIds[0];
@@ -651,7 +651,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
 
           {/* Canvas 3D Procedural */}
           <div className="flex-1 min-h-18 sm:min-h-22.5 md:min-h-55 flex items-center justify-center overflow-hidden">
-            <Character3D isTransformed={isTransformed} />
+            <Character3D isTransformed={isTransformed} modelPath={gameState.player.heroModelPath} />
           </div>
 
           {/* Estadísticas e HP del Jugador */}
@@ -723,7 +723,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               className="relative w-full h-full flex items-center justify-center"
             >
               {viewMode === '3d' ? (
-                <Monster3D monsterId={monster.id} />
+                <Monster3D monsterId={monster.id} modelPath={monster.modelPath} />
               ) : monster.image ? (
                 <img
                   src={monster.image}

@@ -24,7 +24,7 @@ export default function CinematicScene({ type, onComplete }: { type: 'ending', o
       </motion.div>
 
       <motion.h1 
-        className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter bg-gradient-to-r from-yellow-200 via-white to-yellow-200 bg-clip-text text-transparent"
+        className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter bg-linear-to-r from-yellow-200 via-white to-yellow-200 bg-clip-text text-transparent"
         initial={{ y: 20 }}
         animate={{ y: 0 }}
       >

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useRef, useMemo } from 'react';
+import { Component, Suspense, useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, ContactShadows } from '@react-three/drei';
+import { Float, ContactShadows, useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface ProceduralMonsterProps {
@@ -339,18 +339,113 @@ function ProceduralMonster({ monsterId }: ProceduralMonsterProps) {
   );
 }
 
-export default function Monster3D({ monsterId }: ProceduralMonsterProps) {
+class ModelErrorBoundary extends Component<{ fallback: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps: { fallback: React.ReactNode }) {
+    if (prevProps.fallback !== this.props.fallback && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
+export default function Monster3D({ monsterId, modelPath }: { monsterId: string; modelPath?: string }) {
+  const [hasModel, setHasModel] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!modelPath) {
+      setHasModel(false);
+      return;
+    }
+    setHasModel(null);
+    let mounted = true;
+    // Check if the GLB exists before trying to load it to avoid loader errors
+    fetch(modelPath, { method: 'HEAD' })
+      .then((res) => {
+        if (!mounted) return;
+        const contentType = res.headers.get('content-type') ?? '';
+        const looksLikeGlb = /glb|gltf|model\/gltf-binary|application\/octet-stream/i.test(contentType);
+        setHasModel(res.ok && (contentType ? looksLikeGlb : true));
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setHasModel(false);
+      });
+    return () => { mounted = false; };
+  }, [modelPath]);
+
+  function ModelEntity({ path }: { path: string }) {
+    const group = useRef<THREE.Group | null>(null);
+    const { scene, animations } = useGLTF(path) as any;
+    const { actions } = useAnimations(animations, group as any) as { actions?: Record<string, any> };
+
+    useEffect(() => {
+      // Protección: actions puede ser null/undefined o un objeto vacío
+      if (!actions || Object.keys(actions).length === 0) return;
+
+      // Preferir clips por nombre común, si no usar el primero
+      const preferred = actions['Attack'] ?? actions['attack'] ?? actions['Idle'] ?? actions['idle'] ?? Object.values(actions)[0];
+      if (!preferred) return;
+
+      // Reproducir con fades si están disponibles
+      try {
+        if (typeof preferred.reset === 'function') preferred.reset();
+        if (typeof preferred.fadeIn === 'function') preferred.fadeIn(0.2);
+        if (typeof preferred.play === 'function') preferred.play();
+      } catch (e) {
+        // Si algo falla, intentar play directo en todas las acciones como fallback
+        Object.values(actions).forEach((a) => { try { a.play?.(); } catch {} });
+      }
+
+      return () => {
+        try { preferred.fadeOut?.(0.2); } catch {}
+      };
+    }, [actions]);
+
+    useFrame((state, delta) => {
+      if (group.current) {
+        group.current.rotation.y += delta * 0.25;
+        group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
+      }
+    });
+
+    return (
+      <group ref={group}>
+        <primitive object={scene} />
+      </group>
+    );
+  }
+
   return (
-    <div className="w-full h-[72px] sm:h-[110px] md:h-full min-h-[64px] max-h-[100px] sm:max-h-[140px] md:min-h-[220px] md:max-h-[300px] flex items-center justify-center relative select-none">
+    <div className="w-full h-18 sm:h-27.5 md:h-full min-h-16 max-h-25 sm:max-h-35 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
       <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.5} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
-        
+
         <Float speed={2.0} rotationIntensity={0.4} floatIntensity={0.5}>
-          <ProceduralMonster monsterId={monsterId} />
+          {hasModel === true && modelPath ? (
+            <ModelErrorBoundary fallback={<ProceduralMonster monsterId={monsterId} />}>
+              <Suspense fallback={<ProceduralMonster monsterId={monsterId} />}>
+                <ModelEntity path={modelPath} />
+              </Suspense>
+            </ModelErrorBoundary>
+          ) : (
+            <ProceduralMonster monsterId={monsterId} />
+          )}
         </Float>
-        
+
         <ContactShadows 
           position={[0, -1.5, 0]} 
           opacity={0.5} 

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useRef, useMemo } from 'react';
+import { Component, Suspense, useRef, useMemo, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, ContactShadows } from '@react-three/drei';
+import { Float, ContactShadows, useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface ProceduralModelProps {
@@ -114,18 +114,100 @@ function ProceduralHero({ isTransformed }: ProceduralModelProps) {
 
 interface Character3DProps {
   isTransformed: boolean;
+  modelPath?: string;
 }
 
-export default function Character3D({ isTransformed }: Character3DProps) {
+class ModelErrorBoundary extends Component<{ fallback: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidUpdate(prevProps: { fallback: React.ReactNode }) {
+    if (prevProps.fallback !== this.props.fallback && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
+export default function Character3D({ isTransformed, modelPath }: Character3DProps) {
+  const [hasModel, setHasModel] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!modelPath) {
+      setHasModel(false);
+      return;
+    }
+    setHasModel(null);
+    let mounted = true;
+    fetch(modelPath, { method: 'HEAD' })
+      .then(res => {
+        if (!mounted) return;
+        const contentType = res.headers.get('content-type') ?? '';
+        const looksLikeGlb = /glb|gltf|model\/gltf-binary|application\/octet-stream/i.test(contentType);
+        setHasModel(res.ok && (contentType ? looksLikeGlb : true));
+      })
+      .catch(() => { if (mounted) setHasModel(false); });
+    return () => { mounted = false; };
+  }, [modelPath]);
+
+  function ModelEntity({ path }: { path: string }) {
+    const group = useRef<THREE.Group | null>(null);
+    const { scene, animations } = useGLTF(path) as any;
+    const { actions } = useAnimations(animations, group as any) as { actions?: Record<string, any> };
+
+    useEffect(() => {
+      if (!actions || Object.keys(actions).length === 0) return;
+      const preferred = actions['Idle'] ?? actions['idle'] ?? Object.values(actions)[0];
+      if (!preferred) return;
+      try {
+        preferred.reset?.();
+        preferred.fadeIn?.(0.2);
+        preferred.play?.();
+      } catch (e) {
+        Object.values(actions).forEach((a) => { try { a.play?.(); } catch {} });
+      }
+      return () => { try { preferred.fadeOut?.(0.2); } catch {} };
+    }, [actions]);
+
+    useFrame((state, delta) => {
+      if (group.current) {
+        group.current.rotation.y += delta * 0.25;
+        group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
+      }
+    });
+
+    return (
+      <group ref={group}>
+        <primitive object={scene} />
+      </group>
+    );
+  }
   return (
-    <div className="w-full h-[72px] sm:h-[110px] md:h-full min-h-[64px] max-h-[100px] sm:max-h-[140px] md:min-h-[220px] md:max-h-[300px] flex items-center justify-center relative select-none">
+    <div className="w-full h-18 sm:h-27.5 md:h-full min-h-16 max-h-25 sm:max-h-35 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
       <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.6} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
         
         <Float speed={2.5} rotationIntensity={0.3} floatIntensity={0.4}>
-          <ProceduralHero isTransformed={isTransformed} />
+          {hasModel === true && modelPath ? (
+            <ModelErrorBoundary fallback={<ProceduralHero isTransformed={isTransformed} />}>
+              <Suspense fallback={<ProceduralHero isTransformed={isTransformed} />}>
+                <ModelEntity path={modelPath} />
+              </Suspense>
+            </ModelErrorBoundary>
+          ) : (
+            <ProceduralHero isTransformed={isTransformed} />
+          )}
         </Float>
         
         <ContactShadows 

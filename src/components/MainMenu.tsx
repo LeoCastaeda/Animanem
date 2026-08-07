@@ -11,7 +11,7 @@ import { loadGame, hasSaveData } from '../utils/saveSystem.ts';
 import { GameState } from '../types.ts';
 
 interface MainMenuProps {
-  onNewGame: () => void;
+  onNewGame: (heroModelPath: string) => void;
   onContinueGame: (savedState: GameState) => void;
 }
 
@@ -27,9 +27,11 @@ export default function MainMenu({ onNewGame, onContinueGame }: MainMenuProps) {
     }
   }, []);
 
+  const [selectedHeroPath, setSelectedHeroPath] = useState('/models/hero.glb');
+
   const handleNewGameClick = () => {
     soundManager.playVictory();
-    onNewGame();
+    onNewGame(selectedHeroPath);
   };
 
   const handleContinueClick = () => {
@@ -45,7 +47,7 @@ export default function MainMenu({ onNewGame, onContinueGame }: MainMenuProps) {
       <div className="absolute inset-0 z-0 bg-radial-to-b from-indigo-950/40 via-[#020617] to-[#020617] pointer-events-none" />
 
       {/* Brillo de luz de fondo */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] md:w-[600px] md:h-[600px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-87.5] md:w-150h-[600px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none z-0" />
 
       <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -73,6 +75,45 @@ export default function MainMenu({ onNewGame, onContinueGame }: MainMenuProps) {
           <p className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-indigo-300/60 font-medium mt-1">
             THE SHATTERED ISLES
           </p>
+        </div>
+
+        {/* Selector de Héroe */}
+        <div className="grid grid-cols-4 gap-4 w-full max-w-sm">
+          <button
+            type="button"
+            onClick={() => setSelectedHeroPath('/models/hero.glb')}
+            className={`rounded-2xl border p-3 text-left transition-all ${selectedHeroPath === '/models/hero.glb' ? 'border-indigo-400 bg-indigo-500/10 shadow-lg' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+          >
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-indigo-200 mb-2">Héroe Clásico</div>
+            <div className="text-xs text-slate-300">hero.glb</div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedHeroPath('/models/hero_scrapy.glb')}
+            className={`rounded-2xl border p-3 text-left transition-all ${selectedHeroPath === '/models/hero_scrapy.glb' ? 'border-amber-400 bg-amber-500/10 shadow-lg' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+          >
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-amber-200 mb-2">Scrapy Hero</div>
+            <div className="text-xs text-slate-300">hero_scrapy.glb</div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedHeroPath('/models/hero_wiku.glb')}
+            className={`rounded-2xl border p-3 text-left transition-all ${selectedHeroPath === '/models/hero_wiku.glb' ? 'border-emerald-400 bg-emerald-500/10 shadow-lg' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+          >
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-emerald-200 mb-2">Wiku Hero</div>
+            <div className="text-xs text-slate-300">hero_wiku.glb</div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setSelectedHeroPath('/models/hero_zaigo.glb')}
+            className={`rounded-2xl border p-3 text-left transition-all ${selectedHeroPath === '/models/hero_zaigo.glb' ? 'border-pink-400 bg-pink-500/10 shadow-lg' : 'border-white/10 bg-white/5 hover:border-white/20'}`}
+          >
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-pink-200 mb-2">Zaigo Hero</div>
+            <div className="text-xs text-slate-300">hero_zaigo.glb</div>
+          </button>
         </div>
 
         {/* Bloque de Botones */}

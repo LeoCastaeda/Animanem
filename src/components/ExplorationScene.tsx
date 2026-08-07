@@ -497,7 +497,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
                   <button
                     onClick={handleStopRune}
                     disabled={isStopped}
-                    className="w-full min-h-12 py-3 md:py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 border border-indigo-400/40 hover:scale-102 active:scale-98 disabled:opacity-50 transition-all rounded-xl text-white font-black italic tracking-widest uppercase text-[10px] md:text-xs shadow-lg cursor-pointer"
+                    className="w-full min-h-12 py-3 md:py-4 bg-linear-to-r from-indigo-600 via-purple-600 to-indigo-700 border border-indigo-400/40 hover:scale-102 active:scale-98 disabled:opacity-50 transition-all rounded-xl text-white font-black italic tracking-widest uppercase text-[10px] md:text-xs shadow-lg cursor-pointer"
                   >
                     {isStopped ? 'Sincronizando...' : 'Estabilizar Runa (Click!)'}
                   </button>
@@ -569,7 +569,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
             >
               {current.title}
             </motion.h2>
-            <div className="w-40 sm:w-64 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto mb-4 md:mb-6" />
+            <div className="w-40 sm:w-64 h-px bg-linear-to-r from-transparent via-white/40 to-transparent mx-auto mb-4 md:mb-6" />
 
             <motion.p
               className="text-indigo-200/60 max-w-lg mx-auto mb-6 md:mb-10 text-xs sm:text-sm md:text-base leading-relaxed font-medium"
