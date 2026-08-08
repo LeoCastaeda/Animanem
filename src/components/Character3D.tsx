@@ -176,20 +176,23 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
 
       const sphere = box.getBoundingSphere(new THREE.Sphere());
       const center = box.getCenter(new THREE.Vector3());
+      const sizeBox = box.getSize(new THREE.Vector3());
+      const bottomY = box.min.y;
+      const verticalOffset = -bottomY + Math.max(sizeBox.y * 0.05, 0.08);
       const radius = Math.max(sphere.radius, 0.1);
       const aspect = size.width / size.height;
       const vFov = (perspectiveCamera.fov * Math.PI) / 180;
       const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
       const fitFov = Math.max(vFov, hFov);
-      const distance = radius * 1.2 / Math.sin(fitFov / 2);
+      const distance = radius * 1.05 / Math.sin(fitFov / 2);
 
       perspectiveCamera.near = Math.max(distance * 0.01, 0.1);
       perspectiveCamera.far = distance * 50;
-      perspectiveCamera.position.set(0, 0, distance);
-      perspectiveCamera.lookAt(0, 0, 0);
+      perspectiveCamera.position.set(0, sizeBox.y * 0.18 + distance * 0.05, distance);
+      perspectiveCamera.lookAt(0, sizeBox.y * 0.08, 0);
       perspectiveCamera.updateProjectionMatrix();
 
-      setModelCenter(center);
+      setModelCenter(new THREE.Vector3(-center.x, verticalOffset, -center.z));
       setModelScale(1);
     }, [scene, perspectiveCamera, size.width, size.height]);
 
@@ -209,7 +212,7 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
 
     useFrame((state, delta) => {
       if (group.current) {
-        group.current.rotation.y += delta * 0.25;
+        group.current.rotation.y += delta * 0.55;
       }
     });
 
@@ -224,13 +227,13 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
     );
   }
   return (
-    <div className="w-full h-32 sm:h-40 md:h-full min-h-24 max-h-52 sm:max-h-60 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
-      <Canvas camera={{ position: [0, 0, 8], fov: 45 }} className="w-full h-full">
+    <div className="w-full h-56 sm:h-72 md:h-full min-h-44 max-h-96 sm:max-h-112 md:min-h-55 md:max-h-120 flex items-center justify-center relative select-none">
+      <Canvas camera={{ position: [0, 0, 10], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.6} />
-        <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
-        <directionalLight position={[-5, 5, -5]} intensity={0.5} />
+        <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.8} />
+        <directionalLight position={[-5, 5, -5]} intensity={0.6} />
         
-        <Float speed={2.5} rotationIntensity={0.3} floatIntensity={0.4}>
+        <Float speed={2.5} rotationIntensity={0.65} floatIntensity={0.8}>
           {hasModel === true && modelPath ? (
             <ModelErrorBoundary fallback={<ProceduralHero isTransformed={isTransformed} />}>
               <Suspense fallback={<ProceduralHero isTransformed={isTransformed} />}>
@@ -245,8 +248,8 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
         <ContactShadows 
           position={[0, -1.5, 0]} 
           opacity={isTransformed ? 0.6 : 0.3} 
-          scale={4} 
-          blur={1.8} 
+          scale={4.5} 
+          blur={2.2} 
           far={3.0} 
         />
       </Canvas>
