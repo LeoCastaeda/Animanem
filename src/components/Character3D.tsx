@@ -184,15 +184,15 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
       const vFov = (perspectiveCamera.fov * Math.PI) / 180;
       const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
       const fitFov = Math.max(vFov, hFov);
-      const distance = radius * 1.05 / Math.sin(fitFov / 2);
+      const distance = radius * 1.3 / Math.sin(fitFov / 2);
 
       perspectiveCamera.near = Math.max(distance * 0.01, 0.1);
       perspectiveCamera.far = distance * 50;
-      perspectiveCamera.position.set(0, sizeBox.y * 0.18 + distance * 0.05, distance);
+      perspectiveCamera.position.set(0, sizeBox.y * 0.18 + distance * 0.08, distance * 1.03);
       perspectiveCamera.lookAt(0, sizeBox.y * 0.08, 0);
       perspectiveCamera.updateProjectionMatrix();
 
-      setModelCenter(new THREE.Vector3(-center.x, verticalOffset, -center.z));
+      setModelCenter(new THREE.Vector3(center.x, center.y - verticalOffset, center.z));
       setModelScale(1);
     }, [scene, perspectiveCamera, size.width, size.height]);
 
