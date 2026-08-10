@@ -48,7 +48,7 @@ describe('Minimap Expanded View', () => {
       hasPet: false,
       hasLion: false,
       tutorialCompleted: true,
-    } as GameState;
+    } as unknown as GameState;
   });
 
   describe('Requirement 5.1, 5.2, 5.3, 5.4: Tooltips show correct state information', () => {

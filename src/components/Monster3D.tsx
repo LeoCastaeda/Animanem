@@ -400,22 +400,26 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
       const box = new THREE.Box3().setFromObject(scene);
       if (box.isEmpty()) return;
 
-      const sphere = box.getBoundingSphere(new THREE.Sphere());
       const center = box.getCenter(new THREE.Vector3());
       const sizeBox = box.getSize(new THREE.Vector3());
       const bottomY = box.min.y;
       const verticalOffset = -bottomY + Math.max(sizeBox.y * 0.05, 0.08);
-      const radius = Math.max(sphere.radius, 0.1);
-      const aspect = size.width / size.height;
+
+      // Calcular distancia necesaria para encuadrar vertical y horizontalmente
+      const halfHeight = sizeBox.y * 0.5;
+      const halfWidth = sizeBox.x * 0.5;
       const vFov = (perspectiveCamera.fov * Math.PI) / 180;
+      const aspect = size.width / size.height;
       const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
-      const fitFov = Math.max(vFov, hFov);
-      const distance = radius * 1.3 / Math.sin(fitFov / 2);
+      const distanceV = halfHeight / Math.tan(vFov / 2);
+      const distanceH = halfWidth / Math.tan(hFov / 2);
+      const padding = 1.25;
+      const distance = Math.max(distanceV, distanceH) * padding + 0.2;
 
       perspectiveCamera.near = Math.max(distance * 0.01, 0.1);
       perspectiveCamera.far = distance * 50;
-      perspectiveCamera.position.set(0, sizeBox.y * 0.18 + distance * 0.08, distance * 1.03);
-      perspectiveCamera.lookAt(0, sizeBox.y * 0.08, 0);
+      perspectiveCamera.position.set(0, sizeBox.y * 0.15 + distance * 0.05, distance * 1.03);
+      perspectiveCamera.lookAt(0, 0, 0);
       perspectiveCamera.updateProjectionMatrix();
 
       setModelCenter(new THREE.Vector3(center.x, center.y - verticalOffset, center.z));

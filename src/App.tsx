@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback, useEffect } from 'react';
+import { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Save, LogOut } from 'lucide-react';
 import { INITIAL_STATE, GameState, SceneId } from './types.ts';
@@ -115,11 +116,29 @@ export default function App() {
   };
 
   const shouldShowVideo = getBackgroundVideoSrc() !== undefined;
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    // Intentar forzar reproducción — en algunos navegadores móviles la reproducción sólo empieza tras interacción
+    const tryPlay = async () => {
+      try {
+        v.preload = 'auto';
+        v.muted = true;
+        await v.play();
+      } catch (err) {
+        // silencio de fallos: algunos navegadores bloquean autoplay hasta interacción
+      }
+    };
+    tryPlay();
+  }, [gameState.currentScene]);
 
   return (
     <div className="fixed inset-0 bg-[#020617] text-white font-sans overflow-hidden select-none">
       {shouldShowVideo && (
         <video
+          ref={videoRef}
           key={gameState.currentScene}
           className="absolute inset-0 w-full h-full object-cover opacity-60 sm:opacity-70 md:opacity-80 will-change-opacity"
           src={getBackgroundVideoSrc()}
@@ -127,7 +146,10 @@ export default function App() {
           muted
           loop
           playsInline
+          preload="auto"
+          crossOrigin="anonymous"
           aria-hidden="true"
+          onCanPlay={() => { try { videoRef.current?.play(); } catch {} }}
         />
       )}
 

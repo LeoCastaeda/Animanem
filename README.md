@@ -18,3 +18,18 @@ View your app in AI Studio: https://ai.studio/apps/95e292c1-bd9a-493f-bfa3-1de8e
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## TypeScript / Linter
+
+Use the project's local TypeScript compiler to avoid global version mismatches. Prefer these commands:
+
+- Install dependencies (if you haven't):
+   ```bash
+   npm install
+   ```
+- Run the local TypeScript compiler (no emit):
+   ```bash
+   npm run tsc -- --noEmit
+   ```
+
+You can also run `npm run lint` which runs `tsc --noEmit` as configured.

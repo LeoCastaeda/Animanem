@@ -45,7 +45,7 @@ function createGameState(
     hasPet: false,
     hasLion: false,
     tutorialCompleted: true,
-  } as GameState;
+  } as unknown as GameState;
 }
 
 /**
