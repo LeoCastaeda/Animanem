@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, Suspense, useRef, useMemo, useState, useEffect, useLayoutEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Component, Suspense, useRef, useMemo, useState, useEffect } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, ContactShadows, useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -349,7 +349,7 @@ class ModelErrorBoundary extends Component<{ fallback: React.ReactNode; children
     return { hasError: true };
   }
 
-  componentDidUpdate(prevProps: { fallback: React.ReactNode }) {
+  componentDidUpdate(prevProps: { fallback: React.ReactNode; children?: React.ReactNode }) {
     if (prevProps.fallback !== this.props.fallback && this.state.hasError) {
       this.setState({ hasError: false });
     }
@@ -362,8 +362,6 @@ class ModelErrorBoundary extends Component<{ fallback: React.ReactNode; children
 
 export default function Monster3D({ monsterId, modelPath }: { monsterId: string; modelPath?: string }) {
   const [hasModel, setHasModel] = useState<boolean | null>(null);
-  const [modelCenter, setModelCenter] = useState(() => new THREE.Vector3());
-  const [modelScale, setModelScale] = useState(1);
 
   useEffect(() => {
     if (!modelPath) {
@@ -391,52 +389,25 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
     const group = useRef<THREE.Group | null>(null);
     const { scene, animations } = useGLTF(path) as any;
     const { actions } = useAnimations(animations, group as any) as { actions?: Record<string, any> };
-    const { camera, size } = useThree();
-    const perspectiveCamera = camera as THREE.PerspectiveCamera;
-
-    useLayoutEffect(() => {
-      if (!scene || !perspectiveCamera || size.width === 0 || size.height === 0) return;
-
-      const box = new THREE.Box3().setFromObject(scene);
-      if (box.isEmpty()) return;
-
-      const center = box.getCenter(new THREE.Vector3());
-      const sizeBox = box.getSize(new THREE.Vector3());
-      const bottomY = box.min.y;
-      const verticalOffset = -bottomY + Math.max(sizeBox.y * 0.05, 0.08);
-
-      // Calcular distancia necesaria para encuadrar vertical y horizontalmente
-      const halfHeight = sizeBox.y * 0.5;
-      const halfWidth = sizeBox.x * 0.5;
-      const vFov = (perspectiveCamera.fov * Math.PI) / 180;
-      const aspect = size.width / size.height;
-      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
-      const distanceV = halfHeight / Math.tan(vFov / 2);
-      const distanceH = halfWidth / Math.tan(hFov / 2);
-      const padding = 1.25;
-      const distance = Math.max(distanceV, distanceH) * padding + 0.2;
-
-      perspectiveCamera.near = Math.max(distance * 0.01, 0.1);
-      perspectiveCamera.far = distance * 50;
-      perspectiveCamera.position.set(0, sizeBox.y * 0.15 + distance * 0.05, distance * 1.03);
-      perspectiveCamera.lookAt(0, 0, 0);
-      perspectiveCamera.updateProjectionMatrix();
-
-      setModelCenter(new THREE.Vector3(center.x, center.y - verticalOffset, center.z));
-      setModelScale(1);
-    }, [scene, perspectiveCamera, size.width, size.height]);
 
     useEffect(() => {
+      // Protección: actions puede ser null/undefined o un objeto vacío
       if (!actions || Object.keys(actions).length === 0) return;
+
+      // Preferir clips por nombre común, si no usar el primero
       const preferred = actions['Attack'] ?? actions['attack'] ?? actions['Idle'] ?? actions['idle'] ?? Object.values(actions)[0];
       if (!preferred) return;
+
+      // Reproducir con fades si están disponibles
       try {
         if (typeof preferred.reset === 'function') preferred.reset();
         if (typeof preferred.fadeIn === 'function') preferred.fadeIn(0.2);
         if (typeof preferred.play === 'function') preferred.play();
       } catch (e) {
+        // Si algo falla, intentar play directo en todas las acciones como fallback
         Object.values(actions).forEach((a) => { try { a.play?.(); } catch {} });
       }
+
       return () => {
         try { preferred.fadeOut?.(0.2); } catch {}
       };
@@ -444,23 +415,24 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
 
     useFrame((state, delta) => {
       if (group.current) {
-        group.current.rotation.y += delta * 0.55;
+        group.current.rotation.y += delta * 0.25;
+        group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
       }
     });
 
     return (
-      <group ref={group} position={[-modelCenter.x, -modelCenter.y, -modelCenter.z]} scale={[modelScale, modelScale, modelScale]}>
+      <group ref={group}>
         <primitive object={scene} />
       </group>
     );
   }
 
   return (
-    <div className="w-full h-56 sm:h-72 md:h-full min-h-44 max-h-96 sm:max-h-112 md:min-h-55 md:max-h-120 flex items-center justify-center relative select-none">
-      <Canvas camera={{ position: [0, 0, 10], fov: 45 }} className="w-full h-full">
-        <ambientLight intensity={0.6} />
-        <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.8} />
-        <directionalLight position={[-5, 5, -5]} intensity={0.6} />
+    <div className="w-full h-18 sm:h-27.5 md:h-full min-h-16 max-h-25 sm:max-h-35 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
+      <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
+        <ambientLight intensity={0.5} />
+        <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
+        <directionalLight position={[-5, 5, -5]} intensity={0.5} />
 
         <Float speed={2.0} rotationIntensity={0.4} floatIntensity={0.5}>
           {hasModel === true && modelPath ? (
