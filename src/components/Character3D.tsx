@@ -193,7 +193,7 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
   }
   return (
     <div className="w-full h-18 sm:h-27.5 md:h-full min-h-16 max-h-25 sm:max-h-35 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
-      <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
+      <Canvas camera={{ position: [0, 0, 2.8], fov: 45 }} className="w-full h-full">
         <ambientLight intensity={0.6} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
