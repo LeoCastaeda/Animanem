@@ -7,21 +7,30 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Save, LogOut } from 'lucide-react';
-import { INITIAL_STATE, GameState, SceneId } from './types.ts';
+import { INITIAL_STATE, GameState, SceneId, HeroId } from './types.ts';
 import IntroScene from './components/IntroScene.tsx';
 import ExplorationScene from './components/ExplorationScene.tsx';
 import CombatScene from './components/CombatScene.tsx';
 import CinematicScene from './components/CinematicScene.tsx';
 import MainMenu from './components/MainMenu.tsx';
 import Minimap from './components/Minimap.tsx';
-import { saveGame, clearSaveData } from './utils/saveSystem.ts';
+import CharacterSelection from './components/CharacterSelection.tsx';
+import UndergroundScene from './components/UndergroundScene.tsx';
+import EndgameScene from './components/EndgameScene.tsx';
+import SaveSlotsManager from './components/SaveSlotsManager.tsx';
+import { saveGame, clearSaveData, clearAllSaveData } from './utils/saveSystem.ts';
 import { soundManager } from './utils/audio.ts';
+import { getHeroById } from './data/heroes.ts';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
-  const [activeView, setActiveView] = useState<'narrative' | 'exploration' | 'combat'>('narrative');
+  const [activeView, setActiveView] = useState<'narrative' | 'exploration' | 'combat' | 'underground' | 'endgame'>('narrative');
   const [isInMenu, setIsInMenu] = useState(true);
   const [showSaveToast, setShowSaveToast] = useState(false);
+  const [showCharacterSelection, setShowCharacterSelection] = useState(false);
+  const [showSaveSlots, setShowSaveSlots] = useState(false);
+  const [currentSaveSlot, setCurrentSaveSlot] = useState<number>(0);
+  const [pendingCombat, setPendingCombat] = useState(false);
 
   // Mapeo automático de escenas a videos
   const SCENE_VIDEOS: Record<SceneId, string | undefined> = {
@@ -30,8 +39,10 @@ export default function App() {
     'forest': '/video/second_level.mp4',
     'ruins': '/video/bosque_de_las_almas.mp4',
     'city': '/video/city.mp4',
+    'underground': undefined,
     'final-boss': '/video/final-boss.mp4',
     'ending': '/video/final.mp4',
+    'endgame': undefined,
   };
 
   const updateGameState = useCallback((updates: Partial<GameState>) => {
@@ -43,11 +54,11 @@ export default function App() {
       case 'beach':
         return ['shadow-1', 'event:chest', 'shadow-2'];
       case 'forest':
-        return ['ghoul-1', 'event:pet', 'beast-1', 'event:chest'];
+        return ['ghoul-1', 'event:unlock-zaigo', 'event:pet', 'beast-1', 'event:chest'];
       case 'ruins':
-        return ['guardian-1', 'event:shrine', 'event:rune-alignment', 'spirit', 'event:friend-relic', 'golem'];
+        return ['guardian-1', 'event:unlock-wiku', 'event:shrine', 'event:rune-alignment', 'spirit', 'event:friend-relic', 'golem'];
       case 'city':
-        return ['demon', 'event:chest', 'event:lion', 'dark-knight', 'event:rune-alignment', 'event:shrine', 'titan', 'guardian-2'];
+        return ['demon', 'event:chest', 'event:unlock-scrap', 'event:lion', 'dark-knight', 'event:rune-alignment', 'event:shrine', 'titan', 'guardian-2'];
       case 'final-boss':
         return ['colossus'];
       default:
@@ -70,14 +81,20 @@ export default function App() {
     }
   };
 
-  const handleNewGame = (heroModelPath: string) => {
-    clearSaveData();
+  const handleNewGame = (heroId: HeroId) => {
+    clearAllSaveData();
+    const hero = getHeroById(heroId);
     setGameState({
       ...INITIAL_STATE,
       player: {
         ...INITIAL_STATE.player,
-        heroModelPath,
+        heroModelPath: hero.modelPath,
+        selectedHero: heroId,
+        maxHp: hero.baseHp,
+        hp: hero.baseHp,
+        attack: hero.baseAttack,
       },
+      unlockedHeroes: [heroId],
     });
     setActiveView('narrative');
     setIsInMenu(false);
@@ -88,15 +105,34 @@ export default function App() {
     setIsInMenu(false);
     if (savedState.currentScene === 'intro' || savedState.currentScene === 'ending') {
       setActiveView('narrative');
+    } else if (savedState.currentScene === 'underground') {
+      setActiveView('underground');
+    } else if (savedState.currentScene === 'endgame') {
+      setActiveView('endgame');
     } else {
       setActiveView('exploration');
     }
   };
 
   const handleSaveGame = () => {
-    saveGame(gameState);
+    setShowSaveSlots(true);
+  };
+
+  const handleSaveToSlot = (slotId: number) => {
+    saveGame(gameState, slotId);
+    setCurrentSaveSlot(slotId);
     soundManager.playEvent();
     setShowSaveToast(true);
+    setShowSaveSlots(false);
+  };
+
+  const unlockHero = (heroId: HeroId) => {
+    if (!gameState.unlockedHeroes.includes(heroId)) {
+      updateGameState({
+        unlockedHeroes: [...gameState.unlockedHeroes, heroId]
+      });
+      soundManager.playLevelUp();
+    }
   };
 
   useEffect(() => {
@@ -109,6 +145,50 @@ export default function App() {
   const handleExitToMenu = () => {
     soundManager.playClick();
     setIsInMenu(true);
+    setActiveView('narrative');
+  };
+
+  const handleCombatTrigger = () => {
+    setShowCharacterSelection(true);
+    setPendingCombat(true);
+  };
+
+  const handleCharacterSelect = (heroId: HeroId) => {
+    const hero = getHeroById(heroId);
+    updateGameState({
+      player: {
+        ...gameState.player,
+        selectedHero: heroId,
+        heroModelPath: hero.modelPath,
+      }
+    });
+    setShowCharacterSelection(false);
+    if (pendingCombat) {
+      setActiveView('combat');
+      setPendingCombat(false);
+    }
+  };
+
+  const handleUndergroundAccess = () => {
+    soundManager.playClick();
+    setActiveView('underground');
+    setIsInMenu(false);
+  };
+
+  const handleEndgameAccess = () => {
+    soundManager.playClick();
+    setActiveView('endgame');
+    setIsInMenu(false);
+  };
+
+  const handleEndgameModeSelect = (mode: 'arena' | 'survival' | 'boss-rush') => {
+    soundManager.playEvent();
+    // Aquí puedes configurar el modo específico en el gameState si es necesario
+    updateGameState({ 
+      currentScene: 'endgame',
+      // Podrías agregar un campo endgameMode en GameState si quieres rastrearlo
+    });
+    setActiveView('combat');
   };
 
   const getBackgroundVideoSrc = () => {
@@ -160,10 +240,40 @@ export default function App() {
         <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-blue-600/10 blur-[150px] rounded-full"></div>
       </div>
 
+      {/* Character Selection Modal */}
+      <AnimatePresence>
+        {showCharacterSelection && (
+          <CharacterSelection
+            gameState={gameState}
+            onSelect={handleCharacterSelect}
+            onCancel={() => {
+              setShowCharacterSelection(false);
+              setPendingCombat(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Save Slots Modal */}
+      <AnimatePresence>
+        {showSaveSlots && (
+          <SaveSlotsManager
+            mode="save"
+            onSelect={handleSaveToSlot}
+            onCancel={() => setShowSaveSlots(false)}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {isInMenu ? (
           <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-20">
-            <MainMenu onNewGame={handleNewGame} onContinueGame={handleContinueGame} />
+            <MainMenu 
+              onNewGame={handleNewGame} 
+              onContinueGame={handleContinueGame}
+              onUnderground={handleUndergroundAccess}
+              onEndgame={handleEndgameAccess}
+            />
           </motion.div>
         ) : (
           <>
@@ -177,9 +287,31 @@ export default function App() {
               <motion.div key={`exploration-${gameState.currentScene}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
                 <ExplorationScene
                   gameState={gameState}
-                  onCombatTrigger={() => setActiveView('combat')}
+                  onCombatTrigger={handleCombatTrigger}
                   onSceneComplete={(nextScene) => changeScene(nextScene)}
                   onStateUpdate={updateGameState}
+                  onUnlockHero={unlockHero}
+                />
+              </motion.div>
+            )}
+
+            {activeView === 'underground' && (
+              <motion.div key="underground" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+                <UndergroundScene
+                  gameState={gameState}
+                  onCombatTrigger={handleCombatTrigger}
+                  onExit={() => setActiveView('exploration')}
+                  onStateUpdate={updateGameState}
+                />
+              </motion.div>
+            )}
+
+            {activeView === 'endgame' && (
+              <motion.div key="endgame" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+                <EndgameScene
+                  gameState={gameState}
+                  onSelectMode={handleEndgameModeSelect}
+                  onExit={handleExitToMenu}
                 />
               </motion.div>
             )}
@@ -190,12 +322,22 @@ export default function App() {
                   gameState={gameState}
                   onWin={(updatedState) => {
                     setGameState(updatedState);
-                    setActiveView('exploration');
+                    if (updatedState.currentScene === 'final-boss' && updatedState.monstersDefeated > gameState.monstersDefeated) {
+                      // Campaña completada
+                      updateGameState({ campaignCompleted: true });
+                    }
+                    setActiveView(updatedState.currentScene === 'underground' ? 'underground' : 'exploration');
                   }}
                   onGameOver={() => {
-                    clearSaveData();
-                    setGameState(INITIAL_STATE);
-                    setIsInMenu(true);
+                    if (gameState.currentScene === 'underground') {
+                      // En subterráneos, volver a la exploración
+                      updateGameState({ undergroundProgress: 0 });
+                      setActiveView('exploration');
+                    } else {
+                      clearAllSaveData();
+                      setGameState(INITIAL_STATE);
+                      setIsInMenu(true);
+                    }
                   }}
                 />
               </motion.div>
@@ -206,8 +348,7 @@ export default function App() {
                 <CinematicScene
                   type="ending"
                   onComplete={() => {
-                    clearSaveData();
-                    setGameState(INITIAL_STATE);
+                    updateGameState({ campaignCompleted: true });
                     setIsInMenu(true);
                   }}
                 />
@@ -218,7 +359,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* HUD Overlay */}
-      {!isInMenu && gameState.currentScene !== 'intro' && gameState.currentScene !== 'ending' && (
+      {!isInMenu && gameState.currentScene !== 'intro' && gameState.currentScene !== 'ending' && activeView !== 'endgame' && (
         <HUD 
           player={gameState.player} 
           scene={gameState.currentScene} 

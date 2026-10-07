@@ -166,12 +166,14 @@ export default function Minimap({ gameState }: MinimapProps) {
       ]
     },
     'intro': { title: 'Intro', region: '', start: { x: 0, y: 0 }, end: { x: 0, y: 0 }, encounterPoints: [], buildings: [], npcs: [] },
-    'ending': { title: 'Final', region: '', start: { x: 0, y: 0 }, end: { x: 0, y: 0 }, encounterPoints: [], buildings: [], npcs: [] }
+    'ending': { title: 'Final', region: '', start: { x: 0, y: 0 }, end: { x: 0, y: 0 }, encounterPoints: [], buildings: [], npcs: [] },
+    'underground': { title: 'Subterráneos', region: 'Mazmorras Profundas', start: { x: 0, y: 0 }, end: { x: 0, y: 0 }, encounterPoints: [], buildings: [], npcs: [] },
+    'endgame': { title: 'Endgame', region: 'Desafíos Infinitos', start: { x: 0, y: 0 }, end: { x: 0, y: 0 }, encounterPoints: [], buildings: [], npcs: [] }
   };
 
   const currentMap = mapData[currentScene] || mapData['beach'];
 
-  if (currentScene === 'intro' || currentScene === 'ending') {
+  if (currentScene === 'intro' || currentScene === 'ending' || currentScene === 'underground' || currentScene === 'endgame') {
     return null;
   }
 

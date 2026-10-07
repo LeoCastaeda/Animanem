@@ -161,7 +161,7 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
 
   function ModelEntity({ path }: { path: string }) {
     const group = useRef<THREE.Group | null>(null);
-    const { scene, animations } = useGLTF(path) as any;
+    const { scene, animations } = useGLTF(path, '/draco/') as any;
     const { actions } = useAnimations(animations, group as any) as { actions?: Record<string, any> };
 
     useEffect(() => {

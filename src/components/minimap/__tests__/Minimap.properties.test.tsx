@@ -104,6 +104,8 @@ const gameStateArbitrary = fc
               'final-boss': [],
               intro: [],
               ending: [],
+              underground: [],
+              endgame: [],
             };
             plannedEncounters[currentScene] = encounters;
 

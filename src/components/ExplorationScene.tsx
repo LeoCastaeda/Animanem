@@ -14,9 +14,10 @@ interface ExplorationSceneProps {
   onCombatTrigger: () => void;
   onSceneComplete: (nextScene: SceneId) => void;
   onStateUpdate: (updates: Partial<GameState>) => void;
+  onUnlockHero?: (heroId: 'hero' | 'zaigo' | 'wiku' | 'scrap') => void;
 }
 
-export default function ExplorationScene({ gameState, onCombatTrigger, onSceneComplete, onStateUpdate }: ExplorationSceneProps) {
+export default function ExplorationScene({ gameState, onCombatTrigger, onSceneComplete, onStateUpdate, onUnlockHero }: ExplorationSceneProps) {
   const currentScene = gameState.currentScene;
   const plannedEncounters = gameState.plannedEncounters[currentScene] || [];
   const currentEncounterId = gameState.currentEncounterId;
@@ -128,6 +129,9 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
     if (id.startsWith('event:pet')) return '🐾';
     if (id.startsWith('event:lion')) return '🦁';
     if (id.startsWith('event:friend-relic')) return '🕯️';
+    if (id.startsWith('event:unlock-zaigo')) return '⚡';
+    if (id.startsWith('event:unlock-wiku')) return '❄️';
+    if (id.startsWith('event:unlock-scrap')) return '🔧';
     return '⚔️';
   };
 
@@ -238,6 +242,46 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
         // Aumentar ataque
         updatedPlayer.attack += 8;
         resultMsg = 'Fundes los fragmentos de la espada en tu propio equipo. Tu daño base aumenta permanentemente en +8.';
+        soundManager.playLevelUp();
+      }
+    } else if (currentEncounter.startsWith('event:unlock-zaigo')) {
+      // Desbloquear Zaigo en el Bosque
+      if (choice === 'A') {
+        if (onUnlockHero) onUnlockHero('zaigo');
+        updatedPlayer.energy = Math.min(updatedPlayer.maxEnergy, updatedPlayer.energy + 40);
+        resultMsg = '¡Rescatas a Zaigo de la jaula eléctrica! Sus ojos amarillos brillan con gratitud. "Gracias, amigo. Ahora lucharé a tu lado." - ZAIGO DESBLOQUEADO como personaje jugable.';
+        soundManager.playVictory();
+      } else {
+        const item = getRandomItem();
+        updatedInventory.push(item);
+        resultMsg = `Decides no arriesgarte con la jaula eléctrica y continúas. Encuentras ${itemNames[item]} cerca.`;
+        soundManager.playItem();
+      }
+    } else if (currentEncounter.startsWith('event:unlock-wiku')) {
+      // Desbloquear Wiku en las Ruinas
+      if (choice === 'A') {
+        if (onUnlockHero) onUnlockHero('wiku');
+        updatedPlayer.hp = Math.min(updatedPlayer.maxHp, updatedPlayer.hp + 50);
+        resultMsg = '¡Liberas a Wiku del bloque de hielo! Su cabello azul brilla mientras recupera la consciencia. "Me has salvado... Te ayudaré en tu travesía." - WIKU DESBLOQUEADA como personaje jugable.';
+        soundManager.playVictory();
+      } else {
+        updatedPlayer.maxHp += 15;
+        updatedPlayer.hp = Math.min(updatedPlayer.maxHp, updatedPlayer.hp + 15);
+        resultMsg = 'Absorbes la energía gélida del cristal sin liberarlo. Tu HP máximo aumenta en +15.';
+        soundManager.playAscension();
+      }
+    } else if (currentEncounter.startsWith('event:unlock-scrap')) {
+      // Desbloquear Scrap en la Ciudad
+      if (choice === 'A') {
+        if (onUnlockHero) onUnlockHero('scrap');
+        const item1 = getRandomItem();
+        const item2 = getRandomItem();
+        updatedInventory.push(item1, item2);
+        resultMsg = `¡Reactivas a Scrap del modo de hibernación! Sus sistemas cobran vida. "Protocolo de amistad activado. Asistencia garantizada." - SCRAP DESBLOQUEADO como personaje jugable. Además obtienes ${itemNames[item1]} y ${itemNames[item2]}.`;
+        soundManager.playVictory();
+      } else {
+        updatedPlayer.attack += 5;
+        resultMsg = 'Desmantelas piezas del robot inactivo para mejorar tu equipamiento. Tu ataque base aumenta en +5.';
         soundManager.playLevelUp();
       }
     }
@@ -380,6 +424,30 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
         optionA: '',
         optionB: '',
         icon: <Sparkles className="w-10 h-10 text-yellow-400 animate-pulse" />
+      };
+    } else if (currentEncounter.startsWith('event:unlock-zaigo')) {
+      return {
+        title: '⚡ Guerrero Eléctrico Enjaulado',
+        desc: 'Un guerrero de pelo amarillo está atrapado en una jaula eléctrica pulsante. Su mirada feroz te evalúa. Sus poderes del rayo podrían ser invaluables.',
+        optionA: 'Liberar a Zaigo',
+        optionB: 'Continuar tu Camino',
+        icon: <span className="text-5xl animate-pulse">⚡</span>
+      };
+    } else if (currentEncounter.startsWith('event:unlock-wiku')) {
+      return {
+        title: '❄️ Guerrera Congelada',
+        desc: 'Una figura de pelo azul está encerrada en un bloque de hielo milenario. Sus ojos cerrados sugieren que aún vive. Sus habilidades de hielo serían cruciales.',
+        optionA: 'Derretir el Hielo (Liberar Wiku)',
+        optionB: 'Absorber la Energía Gélida',
+        icon: <span className="text-5xl">❄️</span>
+      };
+    } else if (currentEncounter.startsWith('event:unlock-scrap')) {
+      return {
+        title: '🔧 Autómata Inactivo',
+        desc: 'Un robot de combate en hibernación yace entre escombros de la ciudadela. Sus sistemas parecen funcionales. Podría ser un aliado tecnológico poderoso.',
+        optionA: 'Reactivar a Scrap',
+        optionB: 'Desmantelar por Piezas',
+        icon: <span className="text-5xl">🔧</span>
       };
     }
 
