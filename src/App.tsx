@@ -21,6 +21,7 @@ import SaveSlotsManager from './components/SaveSlotsManager.tsx';
 import { saveGame, clearSaveData, clearAllSaveData } from './utils/saveSystem.ts';
 import { soundManager } from './utils/audio.ts';
 import { getHeroById } from './data/heroes.ts';
+import { modelPathForEncounter, preloadGlb } from './utils/gltfStage.ts';
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE);
@@ -149,6 +150,12 @@ export default function App() {
   };
 
   const handleCombatTrigger = () => {
+    const encounters = gameState.plannedEncounters[gameState.currentScene] || [];
+    const encounterId = gameState.currentScene === 'final-boss'
+      ? 'colossus'
+      : encounters[gameState.currentEncounterId];
+    preloadGlb(gameState.player.heroModelPath);
+    preloadGlb(modelPathForEncounter(encounterId));
     setShowCharacterSelection(true);
     setPendingCombat(true);
   };

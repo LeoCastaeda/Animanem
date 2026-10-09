@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { GameState, SceneId } from '../types.ts';
 import { Sword, ChevronRight, Gift, Flame, Sparkles, Heart, HelpCircle, ShieldAlert, Sparkle } from 'lucide-react';
 import { soundManager } from '../utils/audio.ts';
+import { modelPathForEncounter, preloadGlb } from '../utils/gltfStage.ts';
 
 interface ExplorationSceneProps {
   gameState: GameState;
@@ -22,6 +23,13 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
   const plannedEncounters = gameState.plannedEncounters[currentScene] || [];
   const currentEncounterId = gameState.currentEncounterId;
   const currentEncounter = plannedEncounters[currentEncounterId];
+
+  useEffect(() => {
+    preloadGlb(gameState.player.heroModelPath);
+    if (currentEncounter && !currentEncounter.startsWith('event:')) {
+      preloadGlb(modelPathForEncounter(currentEncounter));
+    }
+  }, [currentEncounter, gameState.player.heroModelPath]);
 
   // Estado local para controlar el flujo de eventos
   const [eventStep, setEventStep] = useState<'intro' | 'result'>('intro');

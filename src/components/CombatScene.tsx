@@ -650,7 +650,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           </div>
 
           {/* Canvas 3D Procedural */}
-          <div className="flex-1 min-h-44 sm:min-h-56 md:min-h-55 flex items-center justify-center overflow-hidden">
+          <div className="flex-1 h-[36vh] min-h-40 md:h-auto md:min-h-[260px] flex items-center justify-center overflow-hidden">
             <Character3D isTransformed={isTransformed} modelPath={gameState.player.heroModelPath} />
           </div>
 
@@ -711,7 +711,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           </div>
 
           {/* Imagen o Modelo 3D de Enemigo */}
-          <div className="flex-1 flex items-center justify-center min-h-44 sm:min-h-56 md:min-h-55 overflow-hidden w-full h-full">
+          <div className="flex-1 flex items-center justify-center h-[36vh] min-h-40 md:h-auto md:min-h-[260px] overflow-hidden w-full">
             <motion.div
               animate={{
                 scale: monster.hp <= 0 ? 0 : 1,

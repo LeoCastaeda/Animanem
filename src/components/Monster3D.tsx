@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, Suspense, useRef, useMemo, useState, useEffect } from 'react';
+import { Component, Suspense, useRef, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, ContactShadows, useGLTF, useAnimations } from '@react-three/drei';
 import * as THREE from 'three';
+import { DRACO_DECODER, stageModel } from '../utils/gltfStage';
 
 interface ProceduralMonsterProps {
   monsterId: string;
@@ -339,8 +340,11 @@ function ProceduralMonster({ monsterId }: ProceduralMonsterProps) {
   );
 }
 
-class ModelErrorBoundary extends Component<{ fallback: React.ReactNode; children?: React.ReactNode }, { hasError: boolean }> {
-  constructor(props: { fallback: React.ReactNode; children?: React.ReactNode }) {
+class ModelErrorBoundary extends Component<
+  { resetKey?: string; fallback: React.ReactNode; children?: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { resetKey?: string; fallback: React.ReactNode; children?: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -349,8 +353,8 @@ class ModelErrorBoundary extends Component<{ fallback: React.ReactNode; children
     return { hasError: true };
   }
 
-  componentDidUpdate(prevProps: { fallback: React.ReactNode; children?: React.ReactNode }) {
-    if (prevProps.fallback !== this.props.fallback && this.state.hasError) {
+  componentDidUpdate(prevProps: { resetKey?: string }) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
       this.setState({ hasError: false });
     }
   }
@@ -360,98 +364,75 @@ class ModelErrorBoundary extends Component<{ fallback: React.ReactNode; children
   }
 }
 
-export default function Monster3D({ monsterId, modelPath }: { monsterId: string; modelPath?: string }) {
-  const [hasModel, setHasModel] = useState<boolean | null>(null);
+function ModelEntity({ path }: { path: string }) {
+  const group = useRef<THREE.Group>(null);
+  const gltf = useGLTF(path, DRACO_DECODER);
+  const scene = useMemo(() => stageModel(gltf.scene), [gltf.scene]);
+  const { actions } = useAnimations(gltf.animations, group);
 
   useEffect(() => {
-    if (!modelPath) {
-      setHasModel(false);
-      return;
-    }
-    setHasModel(null);
-    let mounted = true;
-    // Check if the GLB exists before trying to load it to avoid loader errors
-    fetch(modelPath, { method: 'HEAD' })
-      .then((res) => {
-        if (!mounted) return;
-        const contentType = res.headers.get('content-type') ?? '';
-        const looksLikeGlb = /glb|gltf|model\/gltf-binary|application\/octet-stream/i.test(contentType);
-        setHasModel(res.ok && (contentType ? looksLikeGlb : true));
-      })
-      .catch(() => {
-        if (!mounted) return;
-        setHasModel(false);
+    if (!actions || Object.keys(actions).length === 0) return;
+    const preferred = actions['Attack'] ?? actions['attack'] ?? actions['Idle'] ?? actions['idle'] ?? Object.values(actions)[0];
+    if (!preferred) return;
+    try {
+      preferred.reset();
+      preferred.fadeIn(0.2);
+      preferred.play();
+    } catch {
+      Object.values(actions).forEach((action) => {
+        try { action?.play(); } catch { /* el clip no es reproducible */ }
       });
-    return () => { mounted = false; };
-  }, [modelPath]);
+    }
+    return () => { try { preferred.fadeOut(0.2); } catch { /* ya desmontado */ } };
+  }, [actions]);
 
-  function ModelEntity({ path }: { path: string }) {
-    const group = useRef<THREE.Group | null>(null);
-    const { scene, animations } = useGLTF(path, '/draco/') as any;
-    const { actions } = useAnimations(animations, group as any) as { actions?: Record<string, any> };
-
-    useEffect(() => {
-      // Protección: actions puede ser null/undefined o un objeto vacío
-      if (!actions || Object.keys(actions).length === 0) return;
-
-      // Preferir clips por nombre común, si no usar el primero
-      const preferred = actions['Attack'] ?? actions['attack'] ?? actions['Idle'] ?? actions['idle'] ?? Object.values(actions)[0];
-      if (!preferred) return;
-
-      // Reproducir con fades si están disponibles
-      try {
-        if (typeof preferred.reset === 'function') preferred.reset();
-        if (typeof preferred.fadeIn === 'function') preferred.fadeIn(0.2);
-        if (typeof preferred.play === 'function') preferred.play();
-      } catch (e) {
-        // Si algo falla, intentar play directo en todas las acciones como fallback
-        Object.values(actions).forEach((a) => { try { a.play?.(); } catch {} });
-      }
-
-      return () => {
-        try { preferred.fadeOut?.(0.2); } catch {}
-      };
-    }, [actions]);
-
-    useFrame((state, delta) => {
-      if (group.current) {
-        group.current.rotation.y += delta * 0.25;
-        group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
-      }
-    });
-
-    return (
-      <group ref={group}>
-        <primitive object={scene} />
-      </group>
-    );
-  }
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    group.current.rotation.y += delta * 0.25;
+    group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
+  });
 
   return (
-    <div className="w-full h-18 sm:h-27.5 md:h-full min-h-16 max-h-25 sm:max-h-35 md:min-h-55 md:max-h-75 flex items-center justify-center relative select-none">
-      <Canvas camera={{ position: [0, 0, 3.8], fov: 45 }} className="w-full h-full">
+    <group ref={group}>
+      <primitive object={scene} />
+    </group>
+  );
+}
+
+export default function Monster3D({ monsterId, modelPath }: { monsterId: string; modelPath?: string }) {
+  const fallback = <ProceduralMonster monsterId={monsterId} />;
+
+  return (
+    <div className="w-full h-[36vh] min-h-40 md:h-full md:min-h-[260px] flex items-center justify-center relative select-none">
+      <Canvas
+        camera={{ position: [0, 0.05, 2.65], fov: 30 }}
+        dpr={[1, 1.25]}
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+      >
         <ambientLight intensity={0.5} />
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
 
         <Float speed={2.0} rotationIntensity={0.4} floatIntensity={0.5}>
-          {hasModel === true && modelPath ? (
-            <ModelErrorBoundary fallback={<ProceduralMonster monsterId={monsterId} />}>
-              <Suspense fallback={<ProceduralMonster monsterId={monsterId} />}>
+          {modelPath ? (
+            <ModelErrorBoundary resetKey={modelPath} fallback={fallback}>
+              <Suspense fallback={fallback}>
                 <ModelEntity path={modelPath} />
               </Suspense>
             </ModelErrorBoundary>
           ) : (
-            <ProceduralMonster monsterId={monsterId} />
+            fallback
           )}
         </Float>
 
         <ContactShadows 
-          position={[0, -1.5, 0]} 
-          opacity={0.5} 
-          scale={4} 
-          blur={1.8} 
-          far={3.0} 
+          position={[0, -0.62, 0]} 
+          opacity={0.45} 
+          scale={3} 
+          blur={2} 
+          far={1.5}
+          frames={1}
+          resolution={256}
         />
       </Canvas>
     </div>
