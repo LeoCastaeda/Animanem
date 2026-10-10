@@ -240,7 +240,7 @@ export default function Minimap({ gameState }: MinimapProps) {
     <>
       {/* 1. COMPACT HUD MINIMAP (Top Left Corner) */}
       <div 
-        className="fixed top-24 left-3 sm:top-28 sm:left-4 md:top-36 md:left-8 z-50 pointer-events-auto select-none animate-fade-in"
+        className="fixed top-[4.75rem] left-2 sm:top-28 sm:left-4 md:top-36 md:left-8 z-50 pointer-events-auto select-none animate-fade-in"
         style={{ contentVisibility: 'auto' }}
       >
         <div 

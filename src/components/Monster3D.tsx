@@ -403,7 +403,7 @@ export default function Monster3D({ monsterId, modelPath }: { monsterId: string;
   const fallback = <ProceduralMonster monsterId={monsterId} />;
 
   return (
-    <div className="w-full h-[36vh] min-h-40 md:h-full md:min-h-[260px] flex items-center justify-center relative select-none">
+    <div className="w-full h-full min-h-0 flex items-center justify-center relative select-none [&_canvas]:max-h-full [&_canvas]:min-h-0">
       <Canvas
         camera={{ position: [0, 0.05, 2.65], fov: 30 }}
         dpr={[1, 1.25]}

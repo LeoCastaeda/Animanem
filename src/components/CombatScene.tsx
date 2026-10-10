@@ -524,7 +524,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
     <motion.div 
       animate={screenShake ? { x: [-10, 10, -10, 10, 0] } : {}}
       transition={{ duration: 0.1, repeat: 4 }}
-      className="relative h-full w-full flex flex-col items-center justify-between p-4 md:p-8 overflow-hidden z-10 select-none"
+      className="relative h-full w-full flex flex-col items-center justify-between px-2 pt-[4.5rem] pb-2 sm:px-4 sm:pt-24 md:px-8 md:pt-28 md:pb-6 overflow-x-hidden overflow-y-auto z-10 select-none"
     >
       {/* Damage Flash */}
       <AnimatePresence>
@@ -564,10 +564,13 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       <div className="absolute inset-0 bg-radial from-[#1e1b4b]/20 to-[#020617]/50 pointer-events-none" />
 
       {/* Título de Combate e Interruptor de Vista */}
-      <div className="mt-10 md:mt-14 flex items-center gap-3 select-none z-20">
-        <div className="px-4 md:px-6 py-1 bg-red-950/40 backdrop-blur-md border border-red-500/20 rounded-full flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_red]"></span>
-          <span className="text-[10px] font-bold tracking-[0.25em] uppercase text-red-400">Combate de Supervivencia</span>
+      <div className="flex items-center gap-2 select-none z-20 shrink-0 max-w-full">
+        <div className="px-3 md:px-6 py-1 bg-red-950/40 backdrop-blur-md border border-red-500/20 rounded-full flex items-center gap-2 min-w-0">
+          <span className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_red] shrink-0"></span>
+          <span className="text-[9px] md:text-[10px] font-bold tracking-[0.14em] md:tracking-[0.25em] uppercase text-red-400 truncate">
+            <span className="lg:hidden">Combate</span>
+            <span className="hidden lg:inline">Combate de Supervivencia</span>
+          </span>
         </div>
         
         {/* Toggle 2D/3D */}
@@ -583,7 +586,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       </div>
 
       {/* Cinematic Battle Ticker */}
-      <div className="w-full max-w-xl px-4 mt-2 md:mt-3 z-20">
+      <div className="w-full max-w-xl px-1 mt-1.5 md:mt-3 z-20 shrink-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={logs.length}
@@ -615,7 +618,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       </div>
 
       {/* Cuerpo del Combate: Héroe y Monstruo Side by Side */}
-      <div className="w-full max-w-5xl flex flex-col md:flex-row gap-2.5 md:gap-6 items-stretch justify-center flex-1 my-2 md:my-4 min-h-0 overflow-y-auto md:overflow-hidden scrollbar-none py-1">
+      <div className="w-full max-w-5xl grid grid-cols-2 md:flex gap-2 md:gap-6 items-stretch justify-center flex-1 my-1.5 md:my-4 min-h-56 overflow-hidden">
         
         {/* Lado Izquierdo: HÉROE */}
         <motion.div
@@ -626,7 +629,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             playerAction === 'shield' ? { scale: [1, 0.96, 1] } : {}
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="flex-none md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-37.5 md:min-h-0"
+          className="min-w-0 min-h-0 md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-2 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl"
         >
           {/* Indicador de transformación */}
           {isTransformed && (
@@ -650,17 +653,17 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           </div>
 
           {/* Canvas 3D Procedural */}
-          <div className="flex-1 h-[36vh] min-h-40 md:h-auto md:min-h-[260px] flex items-center justify-center overflow-hidden">
+          <div className="flex-1 min-h-32 flex items-center justify-center overflow-hidden">
             <Character3D isTransformed={isTransformed} modelPath={gameState.player.heroModelPath} />
           </div>
 
           {/* Estadísticas e HP del Jugador */}
           <div className="mt-2 md:mt-4 space-y-1.5 md:space-y-3">
             <div>
-              <div className="flex justify-between text-[9px] md:text-xs font-black italic mb-0.5 md:mb-1 text-white/90">
-                <span className="hidden sm:inline">PUNTOS DE VIDA</span>
-                <span className="sm:hidden">HP</span>
-                <span>{playerHp} / {gameState.player.maxHp} HP</span>
+              <div className="flex justify-between gap-2 text-[9px] md:text-xs font-black italic mb-0.5 md:mb-1 text-white/90">
+                <span className="hidden sm:inline truncate min-w-0">PUNTOS DE VIDA</span>
+                <span className="sm:hidden shrink-0">HP</span>
+                <span className="shrink-0">{playerHp} / {gameState.player.maxHp} HP</span>
               </div>
               <div className="h-2 md:h-3 bg-black/40 border border-white/10 rounded-full overflow-hidden">
                 <motion.div
@@ -672,10 +675,10 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             </div>
 
             <div>
-              <div className="flex justify-between text-[9px] md:text-xs font-black italic mb-0.5 md:mb-1 text-indigo-300">
-                <span className="hidden sm:inline">ENERGÍA ARCANA</span>
-                <span className="sm:hidden">AP</span>
-                <span>{playerEnergy} / 100 AP</span>
+              <div className="flex justify-between gap-2 text-[9px] md:text-xs font-black italic mb-0.5 md:mb-1 text-indigo-300">
+                <span className="hidden sm:inline truncate min-w-0">ENERGÍA ARCANA</span>
+                <span className="sm:hidden shrink-0">AP</span>
+                <span className="shrink-0">{playerEnergy} / 100 AP</span>
               </div>
               <div className="h-1.5 md:h-2 bg-black/40 border border-indigo-900/30 rounded-full overflow-hidden">
                 <motion.div
@@ -695,7 +698,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
             monsterAction === 'damage' ? { x: [8, -8, 6, -6, 4, -4, 0] } : {}
           }
           transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="flex-none md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-3 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl min-h-37.5 md:min-h-0"
+          className="min-w-0 min-h-0 md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-2 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl"
         >
           <div className="flex justify-between items-center mb-1.5 md:mb-2">
             <span className="text-[8px] md:text-[10px] font-black tracking-widest text-red-400 uppercase">ENEMIGO</span>
@@ -711,7 +714,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           </div>
 
           {/* Imagen o Modelo 3D de Enemigo */}
-          <div className="flex-1 flex items-center justify-center h-[36vh] min-h-40 md:h-auto md:min-h-[260px] overflow-hidden w-full">
+          <div className="flex-1 min-h-32 flex items-center justify-center overflow-hidden w-full">
             <motion.div
               animate={{
                 scale: monster.hp <= 0 ? 0 : 1,
@@ -738,9 +741,9 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
 
           {/* HP del Monstruo */}
           <div className="mt-2 md:mt-4">
-            <div className="flex justify-between text-[9px] md:text-xs font-black italic mb-0.5 md:mb-1 text-white/90">
-              <span className="uppercase truncate max-w-15 sm:max-w-none">{monster.name}</span>
-              <span>{monster.hp} / {monster.maxHp} HP</span>
+            <div className="flex justify-between gap-2 text-[9px] md:text-xs font-black italic mb-0.5 md:mb-1 text-white/90">
+              <span className="uppercase truncate min-w-0">{monster.name}</span>
+              <span className="shrink-0">{monster.hp} / {monster.maxHp} HP</span>
             </div>
             <div className="h-2 md:h-3 bg-black/40 border border-white/10 rounded-full overflow-hidden">
               <motion.div
@@ -754,7 +757,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       </div>
 
       {/* Panel de Controles / Interfaz de Usuario */}
-      <div className="w-full max-w-md relative z-20 mb-2 md:mb-4 px-1 sm:px-0">
+      <div className="w-full max-w-md relative z-20 shrink-0 px-0.5 sm:px-0">
         <AnimatePresence mode="wait">
           {showItems ? (
             /* Menú de Objetos (Inventario) */

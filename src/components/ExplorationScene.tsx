@@ -501,7 +501,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
         ))}
       </div>
 
-      <div className="z-10 text-center px-3 sm:px-6 w-full max-w-lg max-h-full overflow-y-auto overscroll-contain py-4 scrollbar-thin scrollbar-indigo-500/30">
+      <div className="z-10 text-center px-3 sm:px-6 w-full max-w-lg h-full overflow-y-auto overscroll-contain pt-48 sm:pt-56 md:pt-24 pb-6 sm:pb-8 scrollbar-thin scrollbar-indigo-500/30">
         {/* Renderizado de Evento Interactivo */}
         {isEvent && !isAllDone ? (
           <motion.div
@@ -633,13 +633,13 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
           /* Renderizado de Exploración Estándar */
           <>
             {/* Zone Badge */}
-            <div className="mb-6 px-8 py-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-full inline-flex items-center gap-3">
+            <div className="mb-4 sm:mb-6 px-4 sm:px-8 py-1.5 sm:py-2 max-w-full bg-white/5 backdrop-blur-md border border-white/10 rounded-full inline-flex items-center gap-2 sm:gap-3">
               <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_8px_indigo]"></span>
               <span className="text-[10px] font-bold tracking-widest uppercase text-indigo-300">Exploración Activa</span>
             </div>
 
             <motion.h2
-              className="text-3xl sm:text-5xl md:text-8xl font-black mb-1.5 md:mb-2 tracking-tighter italic text-white drop-shadow-2xl"
+              className="text-2xl sm:text-5xl md:text-7xl font-black mb-1.5 md:mb-2 tracking-tighter italic text-white drop-shadow-2xl leading-none"
               initial={{ y: 20 }}
               animate={{ y: 0 }}
             >
@@ -648,7 +648,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
             <div className="w-40 sm:w-64 h-px bg-linear-to-r from-transparent via-white/40 to-transparent mx-auto mb-4 md:mb-6" />
 
             <motion.p
-              className="text-indigo-200/60 max-w-lg mx-auto mb-6 md:mb-10 text-xs sm:text-sm md:text-base leading-relaxed font-medium"
+              className="text-indigo-200/60 max-w-lg mx-auto mb-4 sm:mb-6 md:mb-10 text-xs sm:text-sm md:text-base leading-relaxed font-medium"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -658,7 +658,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
 
             {/* Encounter Progress Indicators */}
             {totalEncounters > 0 && (
-              <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-6 md:mb-10 select-none">
+              <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-4 sm:mb-6 md:mb-10 select-none">
                 {Array.from({ length: totalEncounters }).map((_, i) => (
                   <motion.div
                     key={i}

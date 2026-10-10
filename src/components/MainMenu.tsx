@@ -92,7 +92,7 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
         )}
       </AnimatePresence>
 
-      <div className="relative flex flex-col items-center justify-center h-full min-h-screen text-center p-4">
+      <div className="relative flex flex-col items-center justify-center h-full overflow-y-auto text-center p-4 py-6">
         {/* Fondo de gradiente sutil específico para el menú */}
         <div className="absolute inset-0 z-0 bg-radial-to-b from-indigo-950/40 via-[#020617] to-[#020617] pointer-events-none" />
 
@@ -103,7 +103,7 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: 'easeOut' }}
-          className="relative z-10 max-w-lg w-full px-6 flex flex-col items-center gap-10"
+          className="relative z-10 max-w-lg w-full px-2 sm:px-6 flex flex-col items-center gap-5 sm:gap-10"
         >
           {/* Bloque del Título */}
           <div className="flex flex-col items-center gap-2">
@@ -118,7 +118,7 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
               <Sparkles className="w-4 h-4" />
             </motion.div>
 
-            <h1 className="text-5xl sm:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white via-indigo-100 to-indigo-400 drop-shadow-[0_4px_12px_rgba(99,102,241,0.3)] mt-2">
+            <h1 className="text-4xl sm:text-7xl font-black italic tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white via-indigo-100 to-indigo-400 drop-shadow-[0_4px_12px_rgba(99,102,241,0.3)] mt-2">
               ANIMANEM
             </h1>
             <div className="h-0.5 w-32 bg-linear-to-r from-transparent via-indigo-500 to-transparent mt-1" />
@@ -128,30 +128,30 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
           </div>
 
           {/* Selector de Héroe */}
-          <div className="grid grid-cols-4 gap-4 w-full max-w-sm">
+          <div className="grid grid-cols-4 gap-2 sm:gap-4 w-full max-w-sm">
             {heroes.map((hero) => (
               <button
                 key={hero.id}
                 type="button"
                 onClick={() => setSelectedHeroId(hero.id)}
-                className={`rounded-2xl border p-3 text-left transition-all ${getColorClasses(hero.color, selectedHeroId === hero.id)}`}
+                className={`rounded-xl sm:rounded-2xl border p-2 sm:p-3 text-left transition-all min-w-0 ${getColorClasses(hero.color, selectedHeroId === hero.id)}`}
               >
-                <div className={`text-sm font-bold uppercase tracking-[0.3em] ${getTextColor(hero.color)} mb-2`}>
+                <div className={`text-[10px] sm:text-sm font-bold uppercase tracking-wide sm:tracking-[0.2em] truncate ${getTextColor(hero.color)}`}>
                   {hero.name}
                 </div>
-                <div className="text-xs text-slate-300">{hero.id}</div>
+                <div className="hidden sm:block text-xs text-slate-300 mt-2">{hero.id}</div>
               </button>
             ))}
           </div>
 
           {/* Bloque de Botones */}
-          <div className="flex flex-col gap-4 w-full max-w-sm">
+          <div className="flex flex-col gap-2.5 sm:gap-4 w-full max-w-sm">
             {/* Nueva Partida */}
             <motion.button
               whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(99, 102, 241, 0.4)' }}
               whileTap={{ scale: 0.98 }}
               onClick={handleNewGameClick}
-              className="relative overflow-hidden w-full py-4 px-6 rounded-xl border border-white/20 frosted-glass hover:border-indigo-400/50 hover:bg-indigo-500/10 transition-all text-sm font-bold uppercase tracking-wider text-white shadow-xl cursor-pointer flex items-center justify-center gap-3 group"
+              className="relative overflow-hidden w-full py-3 sm:py-4 px-6 rounded-xl border border-white/20 frosted-glass hover:border-indigo-400/50 hover:bg-indigo-500/10 transition-all text-sm font-bold uppercase tracking-wider text-white shadow-xl cursor-pointer flex items-center justify-center gap-3 group"
             >
               <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
               <Play className="w-4 h-4 text-indigo-400 group-hover:text-white transition-colors" />
@@ -164,7 +164,7 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
               whileTap={hasSave ? { scale: 0.98 } : {}}
               disabled={!hasSave}
               onClick={handleContinueClick}
-              className={`relative overflow-hidden w-full py-4 px-6 rounded-xl border transition-all text-sm font-bold uppercase tracking-wider shadow-xl flex items-center justify-center gap-3 ${
+              className={`relative overflow-hidden w-full py-3 sm:py-4 px-6 rounded-xl border transition-all text-sm font-bold uppercase tracking-wider shadow-xl flex items-center justify-center gap-3 ${
                 hasSave
                   ? 'border-white/20 frosted-glass hover:border-purple-400/50 hover:bg-purple-500/10 text-white cursor-pointer group'
                   : 'border-white/5 bg-white/5 text-white/30 cursor-not-allowed'
@@ -183,7 +183,7 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
                 whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(168, 85, 247, 0.4)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onUnderground}
-                className="relative overflow-hidden w-full py-4 px-6 rounded-xl border border-white/20 frosted-glass hover:border-purple-400/50 hover:bg-purple-500/10 transition-all text-sm font-bold uppercase tracking-wider text-white shadow-xl cursor-pointer flex items-center justify-center gap-3 group"
+                className="relative overflow-hidden w-full py-3 sm:py-4 px-6 rounded-xl border border-white/20 frosted-glass hover:border-purple-400/50 hover:bg-purple-500/10 transition-all text-sm font-bold uppercase tracking-wider text-white shadow-xl cursor-pointer flex items-center justify-center gap-3 group"
               >
                 <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
                 <span className="text-xl">⛏️</span>
@@ -197,7 +197,7 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
                 whileHover={{ scale: 1.03, boxShadow: '0 0 20px rgba(245, 158, 11, 0.4)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onEndgame}
-                className="relative overflow-hidden w-full py-4 px-6 rounded-xl border border-white/20 frosted-glass hover:border-amber-400/50 hover:bg-amber-500/10 transition-all text-sm font-bold uppercase tracking-wider text-white shadow-xl cursor-pointer flex items-center justify-center gap-3 group"
+                className="relative overflow-hidden w-full py-3 sm:py-4 px-6 rounded-xl border border-white/20 frosted-glass hover:border-amber-400/50 hover:bg-amber-500/10 transition-all text-sm font-bold uppercase tracking-wider text-white shadow-xl cursor-pointer flex items-center justify-center gap-3 group"
               >
                 <div className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
                 <Trophy className="w-4 h-4 text-amber-400 group-hover:text-white transition-colors" />

@@ -415,7 +415,7 @@ function HUD({
   onExitToMenu: () => void; 
 }) {
   return (
-    <div className="absolute top-0 left-0 w-full p-3 md:p-8 flex justify-between items-start pointer-events-none z-60">
+    <div className="absolute top-0 left-0 w-full px-2 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 sm:p-3 md:p-8 flex justify-between items-start pointer-events-none z-60 gap-2">
       <div className="flex gap-2 md:gap-4">
         <div className="w-10 h-10 md:w-16 md:h-16 rounded-full frosted-glass flex items-center justify-center p-1 border-white/30 shrink-0">
           <div className="w-full h-full rounded-full bg-linear-to-b from-indigo-400 to-purple-600 flex items-center justify-center font-black italic text-sm md:text-xl shadow-inner">
@@ -433,7 +433,7 @@ function HUD({
             {/* HP Bar */}
             <div className="flex items-center gap-1.5 md:gap-2">
               <span className="text-[6px] md:text-[7px] text-red-400 font-bold uppercase tracking-wider w-4 md:w-6">HP</span>
-              <div className="h-1 md:h-1.5 w-28 sm:w-36 md:w-48 bg-black/40 rounded-full overflow-hidden border border-white/10">
+              <div className="h-1 md:h-1.5 w-16 sm:w-36 md:w-48 bg-black/40 rounded-full overflow-hidden border border-white/10">
                 <motion.div 
                   className="h-full bg-linear-to-r from-red-500 to-orange-400 shadow-[0_0_10px_rgba(239,68,68,0.5)]" 
                   initial={{ width: 0 }}
@@ -445,7 +445,7 @@ function HUD({
             {/* EXP Bar */}
             <div className="flex items-center gap-1.5 md:gap-2">
               <span className="text-[6px] md:text-[7px] text-emerald-400 font-bold uppercase tracking-wider w-4 md:w-6">EXP</span>
-              <div className="h-0.5 md:h-1 w-28 sm:w-36 md:w-48 bg-black/40 rounded-full overflow-hidden border border-white/10">
+              <div className="h-0.5 md:h-1 w-16 sm:w-36 md:w-48 bg-black/40 rounded-full overflow-hidden border border-white/10">
                 <motion.div 
                   className="h-full bg-linear-to-r from-emerald-500 to-teal-400" 
                   initial={{ width: 0 }}
@@ -458,7 +458,7 @@ function HUD({
             {player.transformationUnlocked && (
               <div className="flex items-center gap-1.5 md:gap-2 animate-pulse">
                 <span className="text-[6px] md:text-[7px] text-amber-400 font-bold uppercase tracking-wider w-4 md:w-6">AP</span>
-                <div className="h-0.5 md:h-1 w-28 sm:w-36 md:w-48 bg-black/40 rounded-full overflow-hidden border border-white/10">
+                <div className="h-0.5 md:h-1 w-16 sm:w-36 md:w-48 bg-black/40 rounded-full overflow-hidden border border-white/10">
                   <motion.div 
                     className="h-full bg-linear-to-r from-amber-500 to-yellow-300 shadow-[0_0_6px_rgba(245,158,11,0.5)]" 
                     initial={{ width: 0 }}
@@ -473,10 +473,10 @@ function HUD({
       
       <div className="text-right flex flex-col items-end gap-2">
         <div>
-          <h3 className="text-base sm:text-2xl md:text-3xl font-black italic tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white to-white/40 leading-none">
+          <h3 className="text-sm sm:text-2xl md:text-3xl font-black italic tracking-tighter text-transparent bg-clip-text bg-linear-to-b from-white to-white/40 leading-none max-w-[5.5rem] sm:max-w-none truncate">
             {scene.replace('-', ' ')}
           </h3>
-          <p className="text-[7px] sm:text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-indigo-400 font-bold mt-0.5 md:mt-1">THE SHATTERED ISLES</p>
+          <p className="hidden sm:block text-[7px] sm:text-[9px] md:text-[10px] tracking-[0.3em] uppercase text-indigo-400 font-bold mt-0.5 md:mt-1">THE SHATTERED ISLES</p>
         </div>
 
         {/* Botones de guardado y salida */}
