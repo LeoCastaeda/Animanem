@@ -92,7 +92,7 @@ export function executeAbility(
       result.monsterHpChange = -finalDamage;
       const paralyzed = Math.random() < 0.5;
       result.debuffApplied = paralyzed ? 'paralizado' : undefined;
-      result.logMessage = `⚡ ZAIGO lanza PUÑO DEL TRUENO! ${finalDamage} de daño eléctrico!${paralyzed ? ' ¡El enemigo está paralizado!' : ''}`;
+      result.logMessage = `⚡ ${hero.displayName} lanza PUÑO DEL TRUENO! ${finalDamage} de daño eléctrico!${paralyzed ? ' ¡El enemigo está paralizado!' : ''}`;
       break;
     }
     
@@ -101,7 +101,7 @@ export function executeAbility(
       const healing = Math.round(gameState.player.maxHp * 0.4);
       result.healing = healing;
       result.playerHpChange = healing;
-      result.logMessage = `💚 ZAIGO usa CHISPA VITAL y se regenera ${healing} HP con electricidad!`;
+      result.logMessage = `💚 ${hero.displayName} usa CHISPA VITAL y se regenera ${healing} HP con electricidad!`;
       break;
     }
     
@@ -114,9 +114,9 @@ export function executeAbility(
       if (monster.hp - finalDamage <= 0) {
         result.energyGain = 20;
         result.playerEnergyChange = (result.playerEnergyChange || 0) + 20;
-        result.logMessage = `⚡🌩️ ¡ZAIGO invoca TORMENTA ELÉCTRICA DEFINITIVA! ${finalDamage} de daño masivo y recupera 20 energía al eliminar al enemigo!`;
+        result.logMessage = `⚡🌩️ ¡${hero.displayName} invoca TORMENTA ELÉCTRICA DEFINITIVA! ${finalDamage} de daño masivo y recupera 20 energía al eliminar al enemigo!`;
       } else {
-        result.logMessage = `⚡🌩️ ¡ZAIGO invoca TORMENTA ELÉCTRICA! ${finalDamage} de daño catastrófico!`;
+        result.logMessage = `⚡🌩️ ¡${hero.displayName} invoca TORMENTA ELÉCTRICA! ${finalDamage} de daño catastrófico!`;
       }
       break;
     }
@@ -127,14 +127,14 @@ export function executeAbility(
       result.damage = finalDamage;
       result.monsterHpChange = -finalDamage;
       result.debuffApplied = 'debilitado';
-      result.logMessage = `❄️ WIKU lanza HOJA DE ESCARCHA! ${finalDamage} de daño gélido! El enemigo pierde 15% ataque por 2 turnos.`;
+      result.logMessage = `❄️ ${hero.displayName} lanza HOJA DE ESCARCHA! ${finalDamage} de daño gélido! El enemigo pierde 15% ataque por 2 turnos.`;
       break;
     }
     
     // WIKU - Barrera de Hielo
     case 'wiku-ice-barrier': {
       result.buffApplied = 'barrera-hielo';
-      result.logMessage = `🧊 WIKU crea BARRERA DE HIELO. Reduce 50% del daño recibido por 3 turnos.`;
+      result.logMessage = `🧊 ${hero.displayName} crea BARRERA DE HIELO. Reduce 50% del daño recibido por 3 turnos.`;
       break;
     }
     
@@ -146,7 +146,7 @@ export function executeAbility(
       result.monsterHpChange = -finalDamage;
       result.healing = healing;
       result.playerHpChange = healing;
-      result.logMessage = `❄️🌨️ ¡WIKU conjura VENTISCA POLAR! ${finalDamage} de daño congelante y se cura ${healing} HP!`;
+      result.logMessage = `❄️🌨️ ¡${hero.displayName} conjura VENTISCA POLAR! ${finalDamage} de daño congelante y se cura ${healing} HP!`;
       break;
     }
     
@@ -157,9 +157,9 @@ export function executeAbility(
         const items = ['potion', 'elixir', 'crystal', 'shield'];
         const item = items[Math.floor(Math.random() * items.length)];
         result.specialEffect = `found-item:${item}`;
-        result.logMessage = `🔧 SCRAP recolecta chatarra y encuentra un objeto: ${item}!`;
+        result.logMessage = `🔧 ${hero.displayName} recolecta chatarra y encuentra un objeto: ${item}!`;
       } else {
-        result.logMessage = `🔧 SCRAP recolecta chatarra pero no encuentra nada útil esta vez.`;
+        result.logMessage = `🔧 ${hero.displayName} recolecta chatarra pero no encuentra nada útil esta vez.`;
       }
       break;
     }
@@ -167,7 +167,7 @@ export function executeAbility(
     // SCRAP - Sobrecarga
     case 'scrap-overdrive': {
       result.buffApplied = 'sobrecarga';
-      result.logMessage = `⚙️ SCRAP activa SOBRECARGA! +50% ataque por 3 turnos (pero pierde 10 HP/turno).`;
+      result.logMessage = `⚙️ ${hero.displayName} activa SOBRECARGA! +50% ataque por 3 turnos (pero pierde 10 HP/turno).`;
       break;
     }
     
@@ -177,7 +177,7 @@ export function executeAbility(
       result.damage = finalDamage;
       result.monsterHpChange = -finalDamage;
       result.debuffApplied = 'silenciado';
-      result.logMessage = `⚡🔧 SCRAP libera PULSO EMP! ${finalDamage} de daño electromagnético! Enemigo silenciado por 2 turnos.`;
+      result.logMessage = `⚡🔧 ${hero.displayName} libera PULSO EMP! ${finalDamage} de daño electromagnético! Enemigo silenciado por 2 turnos.`;
       break;
     }
     

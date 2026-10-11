@@ -174,10 +174,10 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
       setTimeout(() => {
         setMonsterAction('idle');
       }, 500);
-    }, 200);
+    }, 280);
     setTimeout(() => {
       setPlayerAction('idle');
-    }, 600);
+    }, 1200);
 
     // Cálculo de daño
     const baseDmg = playerAttack + (gameState.player.level * 2);
@@ -202,7 +202,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
     setTimeout(() => {
       setTurn('monster');
       setIsAnimating(false);
-    }, 900);
+    }, 1400);
   };
 
   // CURAR
@@ -384,7 +384,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
           setMonsterAction('attack');
           setTimeout(() => {
             setMonsterAction('idle');
-          }, 600);
+          }, 1200);
 
           if (shieldActive) {
             setShieldActive(false);
@@ -623,12 +623,12 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
         {/* Lado Izquierdo: HÉROE */}
         <motion.div
           animate={
-            playerAction === 'attack' ? { x: [0, 40, 0], scale: [1, 1.03, 1] } :
+            playerAction === 'attack' ? { x: [0, 88, 0], scale: [1, 1.06, 1] } :
             playerAction === 'heal' ? { y: [0, -15, 0], scale: [1, 1.04, 1] } :
             playerAction === 'damage' ? { x: [-8, 8, -6, 6, -4, 4, 0] } :
             playerAction === 'shield' ? { scale: [1, 0.96, 1] } : {}
           }
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: playerAction === 'attack' ? 1.05 : 0.5, ease: "easeInOut" }}
           className="min-w-0 min-h-0 md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-2 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl"
         >
           {/* Indicador de transformación */}
@@ -654,7 +654,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
 
           {/* Canvas 3D Procedural */}
           <div className="flex-1 min-h-32 flex items-center justify-center overflow-hidden">
-            <Character3D isTransformed={isTransformed} modelPath={gameState.player.heroModelPath} />
+            <Character3D isTransformed={isTransformed} modelPath={gameState.player.heroModelPath} acting={playerAction === 'attack'} />
           </div>
 
           {/* Estadísticas e HP del Jugador */}
@@ -694,10 +694,10 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
         {/* Lado Derecho: MONSTRUO */}
         <motion.div
           animate={
-            monsterAction === 'attack' ? { x: [0, -40, 0], scale: [1, 1.03, 1] } :
+            monsterAction === 'attack' ? { x: [0, -88, 0], scale: [1, 1.06, 1] } :
             monsterAction === 'damage' ? { x: [8, -8, 6, -6, 4, -4, 0] } : {}
           }
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: monsterAction === 'attack' ? 1.05 : 0.5, ease: "easeInOut" }}
           className="min-w-0 min-h-0 md:flex-1 bg-slate-950/20 backdrop-blur-xs border border-white/5 rounded-2xl md:rounded-3xl p-2 md:p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl"
         >
           <div className="flex justify-between items-center mb-1.5 md:mb-2">
@@ -726,7 +726,7 @@ export default function CombatScene({ gameState, onWin, onGameOver }: CombatScen
               className="relative w-full h-full flex items-center justify-center"
             >
               {viewMode === '3d' ? (
-                <Monster3D monsterId={monster.id} modelPath={monster.modelPath} />
+                <Monster3D monsterId={monster.id} modelPath={monster.modelPath} acting={monsterAction === 'attack'} />
               ) : monster.image ? (
                 <img
                   src={monster.image}

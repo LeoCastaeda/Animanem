@@ -257,7 +257,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
       if (choice === 'A') {
         if (onUnlockHero) onUnlockHero('zaigo');
         updatedPlayer.energy = Math.min(updatedPlayer.maxEnergy, updatedPlayer.energy + 40);
-        resultMsg = '¡Rescatas a Zaigo de la jaula eléctrica! Sus ojos amarillos brillan con gratitud. "Gracias, amigo. Ahora lucharé a tu lado." - ZAIGO DESBLOQUEADO como personaje jugable.';
+        resultMsg = '¡Rescatas a Wiku de la jaula eléctrica! Sus ojos amarillos brillan con gratitud. "Gracias, amigo. Ahora lucharé a tu lado." - WIKU DESBLOQUEADO como personaje jugable.';
         soundManager.playVictory();
       } else {
         const item = getRandomItem();
@@ -270,7 +270,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
       if (choice === 'A') {
         if (onUnlockHero) onUnlockHero('wiku');
         updatedPlayer.hp = Math.min(updatedPlayer.maxHp, updatedPlayer.hp + 50);
-        resultMsg = '¡Liberas a Wiku del bloque de hielo! Su cabello azul brilla mientras recupera la consciencia. "Me has salvado... Te ayudaré en tu travesía." - WIKU DESBLOQUEADA como personaje jugable.';
+        resultMsg = '¡Liberas a Héroe del bloque de hielo! Su cabello azul brilla mientras recupera la consciencia. "Me has salvado... Te ayudaré en tu travesía." - HÉROE DESBLOQUEADO como personaje jugable.';
         soundManager.playVictory();
       } else {
         updatedPlayer.maxHp += 15;
@@ -285,7 +285,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
         const item1 = getRandomItem();
         const item2 = getRandomItem();
         updatedInventory.push(item1, item2);
-        resultMsg = `¡Reactivas a Scrap del modo de hibernación! Sus sistemas cobran vida. "Protocolo de amistad activado. Asistencia garantizada." - SCRAP DESBLOQUEADO como personaje jugable. Además obtienes ${itemNames[item1]} y ${itemNames[item2]}.`;
+        resultMsg = `¡Reactivas a Scrapy del modo de hibernación! Sus sistemas cobran vida. "Protocolo de amistad activado. Asistencia garantizada." - SCRAPY DESBLOQUEADO como personaje jugable. Además obtienes ${itemNames[item1]} y ${itemNames[item2]}.`;
         soundManager.playVictory();
       } else {
         updatedPlayer.attack += 5;
@@ -437,7 +437,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
       return {
         title: '⚡ Guerrero Eléctrico Enjaulado',
         desc: 'Un guerrero de pelo amarillo está atrapado en una jaula eléctrica pulsante. Su mirada feroz te evalúa. Sus poderes del rayo podrían ser invaluables.',
-        optionA: 'Liberar a Zaigo',
+        optionA: 'Liberar a Wiku',
         optionB: 'Continuar tu Camino',
         icon: <span className="text-5xl animate-pulse">⚡</span>
       };
@@ -445,7 +445,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
       return {
         title: '❄️ Guerrera Congelada',
         desc: 'Una figura de pelo azul está encerrada en un bloque de hielo milenario. Sus ojos cerrados sugieren que aún vive. Sus habilidades de hielo serían cruciales.',
-        optionA: 'Derretir el Hielo (Liberar Wiku)',
+        optionA: 'Derretir el Hielo (Liberar a Héroe)',
         optionB: 'Absorber la Energía Gélida',
         icon: <span className="text-5xl">❄️</span>
       };
@@ -453,7 +453,7 @@ export default function ExplorationScene({ gameState, onCombatTrigger, onSceneCo
       return {
         title: '🔧 Autómata Inactivo',
         desc: 'Un robot de combate en hibernación yace entre escombros de la ciudadela. Sus sistemas parecen funcionales. Podría ser un aliado tecnológico poderoso.',
-        optionA: 'Reactivar a Scrap',
+        optionA: 'Reactivar a Scrapy',
         optionB: 'Desmantelar por Piezas',
         icon: <span className="text-5xl">🔧</span>
       };

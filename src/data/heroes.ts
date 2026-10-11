@@ -132,7 +132,7 @@ export const HEROES: Record<string, HeroCharacter> = {
   hero: {
     id: 'hero',
     name: 'hero',
-    displayName: 'HÉROE',
+    displayName: 'ZAIGO',
     description: 'El guerrero con patas de pájaro. Ágil y versátil, equilibrado en ataque y defensa.',
     modelPath: '/models/hero.glb',
     baseHp: 100,
@@ -145,7 +145,7 @@ export const HEROES: Record<string, HeroCharacter> = {
   zaigo: {
     id: 'zaigo',
     name: 'zaigo',
-    displayName: 'ZAIGO',
+    displayName: 'WIKU',
     description: 'El guerrero del pelo amarillo. Maestro del rayo, alto daño explosivo.',
     modelPath: '/models/hero_zaigo.glb',
     baseHp: 90,
@@ -158,7 +158,7 @@ export const HEROES: Record<string, HeroCharacter> = {
   wiku: {
     id: 'wiku',
     name: 'wiku',
-    displayName: 'WIKU',
+    displayName: 'HÉROE',
     description: 'La guerrera del pelo azul. Especialista en hielo, control y defensa superiores.',
     modelPath: '/models/hero_wiku.glb',
     baseHp: 110,
@@ -171,7 +171,7 @@ export const HEROES: Record<string, HeroCharacter> = {
   scrap: {
     id: 'scrap',
     name: 'scrap',
-    displayName: 'SCRAP',
+    displayName: 'SCRAPY',
     description: 'El ingeniero mecánico. Adaptable y astuto, utiliza tecnología y objetos.',
     modelPath: '/models/hero_scrapy.glb',
     baseHp: 95,

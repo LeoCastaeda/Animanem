@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, Suspense, useRef, useMemo } from 'react';
+import { Component, Suspense, useEffect, useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, ContactShadows, useGLTF } from '@react-three/drei';
+import { Float, ContactShadows, useAnimations, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { HEROES } from '../data/heroes';
 import { DRACO_DECODER, preloadGlb, stageModel } from '../utils/gltfStage';
@@ -117,6 +117,7 @@ function ProceduralHero({ isTransformed }: ProceduralModelProps) {
 interface Character3DProps {
   isTransformed: boolean;
   modelPath?: string;
+  acting?: boolean;
 }
 
 class ModelErrorBoundary extends Component<
@@ -143,15 +144,69 @@ class ModelErrorBoundary extends Component<
   }
 }
 
-function ModelEntity({ path }: { path: string }) {
+/** El héroe de las patas de pájaro gira al atacar; en reposo se queda quieto, como los demás. */
+const SPINNING_MODEL = '/models/hero.glb';
+
+function restPose(root: THREE.Object3D) {
+  root.traverse((obj) => {
+    const skinned = obj as THREE.SkinnedMesh;
+    if (skinned.isSkinnedMesh) skinned.skeleton.pose();
+  });
+}
+
+function ModelEntity({ path, acting }: { path: string; acting: boolean }) {
   const group = useRef<THREE.Group>(null);
   const gltf = useGLTF(path, DRACO_DECODER);
   const scene = useMemo(() => stageModel(gltf.scene, path), [gltf.scene, path]);
+  const { actions } = useAnimations(gltf.animations, group);
+  const spins = path === SPINNING_MODEL;
 
-  useFrame((state) => {
+  useEffect(() => {
+    const list = actions ? Object.values(actions).filter((action) => action != null) : [];
+    const stop = () => {
+      list.forEach((action) => { try { action.stop(); } catch { /* ya parado */ } });
+      if (group.current) {
+        group.current.rotation.y = 0;
+        restPose(group.current);
+      }
+    };
+    if (!acting) {
+      stop();
+      return;
+    }
+    const preferred = spins
+      ? actions?.['NlaTrack.001'] ?? actions?.['Idle'] ?? actions?.['idle'] ?? list[0]
+      : actions?.['Attack'] ?? actions?.['attack'] ?? actions?.['Idle'] ?? actions?.['idle'] ?? list[0];
+    if (!preferred) return;
+    try {
+      preferred.reset();
+      preferred.setLoop(THREE.LoopOnce, 1);
+      preferred.clampWhenFinished = true;
+      preferred.timeScale = Math.min(3.2, Math.max(1.8, preferred.getClip().duration / 1.15));
+      preferred.fadeIn(0.05);
+      preferred.play();
+    } catch {
+      try { preferred.play(); } catch { /* el clip no es reproducible */ }
+    }
+    return stop;
+  }, [acting, actions, spins]);
+
+  const attackTime = useRef(0);
+
+  useFrame((_, delta) => {
     if (!group.current) return;
-    group.current.rotation.y = 0;
-    group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
+    if (!acting) {
+      attackTime.current = 0;
+      group.current.position.x = 0;
+      group.current.rotation.z = 0;
+      group.current.rotation.y = 0;
+      return;
+    }
+    attackTime.current += delta;
+    const strike = Math.sin(Math.min(attackTime.current / 1.05, 1) * Math.PI);
+    group.current.position.x = strike * 0.42;
+    group.current.rotation.z = -strike * 0.45;
+    if (spins) group.current.rotation.y += delta * 2.4;
   });
 
   return (
@@ -165,7 +220,7 @@ Object.values(HEROES).forEach((hero) => {
   preloadGlb(hero.modelPath);
 });
 
-export default function Character3D({ isTransformed, modelPath }: Character3DProps) {
+export default function Character3D({ isTransformed, modelPath, acting = false }: Character3DProps) {
   const fallback = <ProceduralHero isTransformed={isTransformed} />;
 
   return (
@@ -179,11 +234,11 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
         
-        <Float speed={2.5} rotationIntensity={0} floatIntensity={0.4}>
+        <Float speed={2.5} rotationIntensity={0} floatIntensity={0}>
           {modelPath ? (
             <ModelErrorBoundary resetKey={modelPath} fallback={fallback}>
               <Suspense fallback={fallback}>
-                <ModelEntity path={modelPath} />
+                <ModelEntity path={modelPath} acting={Boolean(acting)} />
               </Suspense>
             </ModelErrorBoundary>
           ) : (

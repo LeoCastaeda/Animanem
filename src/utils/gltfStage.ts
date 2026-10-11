@@ -8,11 +8,11 @@ export const DRACO_DECODER = '/draco/';
 const TARGET_HEIGHT = 0.98;
 
 /**
- * Zaigo tiene el pelo en el límite superior de la malla, así que el encuadre
- * general le corta la cabeza y lo deja alto. Solo él se baja y se reduce un poco.
+ * El modelo de pelo amarillo (en pantalla, Wiku) tiene el pelo en el límite
+ * superior de la malla, así que el encuadre le corta la cabeza. Solo él se baja.
  */
 const MODEL_FIT: Record<string, { height: number; offsetY: number }> = {
-  '/models/hero_zaigo.glb': { height: 0.84, offsetY: -0.14 },
+  '/models/hero_zaigo.glb': { height: 0.84, offsetY: -0.24 },
 };
 
 const ENCOUNTER_MODELS: Record<string, string> = {

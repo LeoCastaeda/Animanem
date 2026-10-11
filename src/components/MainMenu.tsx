@@ -54,10 +54,10 @@ export default function MainMenu({ onNewGame, onContinueGame, onUnderground, onE
   };
 
   const heroes: Array<{ id: HeroId; name: string; color: string }> = [
-    { id: 'hero', name: 'Héroe', color: 'indigo' },
-    { id: 'zaigo', name: 'Zaigo', color: 'amber' },
-    { id: 'wiku', name: 'Wiku', color: 'emerald' },
-    { id: 'scrap', name: 'Scrap', color: 'pink' },
+    { id: 'hero', name: 'Zaigo', color: 'indigo' },
+    { id: 'zaigo', name: 'Wiku', color: 'amber' },
+    { id: 'wiku', name: 'Héroe', color: 'emerald' },
+    { id: 'scrap', name: 'Scrapy', color: 'pink' },
   ];
 
   const getColorClasses = (color: string, isSelected: boolean) => {
