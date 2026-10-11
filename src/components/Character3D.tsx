@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Component, Suspense, useRef, useMemo, useEffect } from 'react';
+import { Component, Suspense, useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, ContactShadows, useGLTF, useAnimations } from '@react-three/drei';
+import { Float, ContactShadows, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { HEROES } from '../data/heroes';
 import { DRACO_DECODER, preloadGlb, stageModel } from '../utils/gltfStage';
@@ -147,27 +147,10 @@ function ModelEntity({ path }: { path: string }) {
   const group = useRef<THREE.Group>(null);
   const gltf = useGLTF(path, DRACO_DECODER);
   const scene = useMemo(() => stageModel(gltf.scene, path), [gltf.scene, path]);
-  const { actions } = useAnimations(gltf.animations, group);
 
-  useEffect(() => {
-    if (!actions || Object.keys(actions).length === 0) return;
-    const preferred = actions['Idle'] ?? actions['idle'] ?? Object.values(actions)[0];
-    if (!preferred) return;
-    try {
-      preferred.reset();
-      preferred.fadeIn(0.2);
-      preferred.play();
-    } catch {
-      Object.values(actions).forEach((action) => {
-        try { action?.play(); } catch { /* el clip no es reproducible */ }
-      });
-    }
-    return () => { try { preferred.fadeOut(0.2); } catch { /* ya desmontado */ } };
-  }, [actions]);
-
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (!group.current) return;
-    group.current.rotation.y += delta * 0.25;
+    group.current.rotation.y = 0;
     group.current.position.y = Math.sin(state.clock.getElapsedTime() * 1.1) * 0.08;
   });
 
@@ -196,7 +179,7 @@ export default function Character3D({ isTransformed, modelPath }: Character3DPro
         <spotLight position={[5, 10, 5]} angle={0.25} penumbra={1} intensity={1.5} />
         <directionalLight position={[-5, 5, -5]} intensity={0.5} />
         
-        <Float speed={2.5} rotationIntensity={0.3} floatIntensity={0.4}>
+        <Float speed={2.5} rotationIntensity={0} floatIntensity={0.4}>
           {modelPath ? (
             <ModelErrorBoundary resetKey={modelPath} fallback={fallback}>
               <Suspense fallback={fallback}>
