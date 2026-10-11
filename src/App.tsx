@@ -32,6 +32,16 @@ export default function App() {
   const [showSaveSlots, setShowSaveSlots] = useState(false);
   const [currentSaveSlot, setCurrentSaveSlot] = useState<number>(0);
   const [pendingCombat, setPendingCombat] = useState(false);
+  const [portraitVideo, setPortraitVideo] = useState(
+    () => window.matchMedia('(orientation: portrait)').matches
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(orientation: portrait)');
+    const onChange = () => setPortraitVideo(media.matches);
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
   // Mapeo automático de escenas a videos
   const SCENE_VIDEOS: Record<SceneId, string | undefined> = {
@@ -199,7 +209,9 @@ export default function App() {
   };
 
   const getBackgroundVideoSrc = () => {
-    return SCENE_VIDEOS[gameState.currentScene];
+    const desktop = SCENE_VIDEOS[gameState.currentScene];
+    if (!desktop || !portraitVideo) return desktop;
+    return desktop.replace('/video/', '/video/mobile/');
   };
 
   const shouldShowVideo = getBackgroundVideoSrc() !== undefined;
@@ -219,14 +231,14 @@ export default function App() {
       }
     };
     tryPlay();
-  }, [gameState.currentScene]);
+  }, [gameState.currentScene, portraitVideo]);
 
   return (
     <div className="fixed inset-0 bg-[#020617] text-white font-sans overflow-hidden select-none">
       {shouldShowVideo && (
         <video
           ref={videoRef}
-          key={gameState.currentScene}
+          key={`${gameState.currentScene}-${portraitVideo ? 'portrait' : 'landscape'}`}
           className="absolute inset-0 w-full h-full object-cover opacity-60 sm:opacity-70 md:opacity-80 will-change-opacity"
           src={getBackgroundVideoSrc()}
           autoPlay
