@@ -27,18 +27,17 @@ export default function UndergroundScene({ gameState, onCombatTrigger, onExit, o
 
   const generateFloorEncounters = (floor: number) => {
     const baseMonsters = [
-      'shadow-1', 'shadow-2', 'ghoul-1', 'ghoul-2', 
-      'beast-1', 'beast-2', 'guardian-1', 'guardian-2',
+      'shadow-1', 'ghoul-1', 'beast-1', 'guardian-1',
       'wraith', 'golem', 'spirit', 'ice-giant', 'demon', 'dark-knight', 'titan'
     ];
-    
-    const monstersPerFloor = Math.min(3 + Math.floor(floor / 2), 8);
-    const encounters: string[] = [];
-    
-    for (let i = 0; i < monstersPerFloor; i++) {
-      const randomMonster = baseMonsters[Math.floor(Math.random() * baseMonsters.length)];
-      encounters.push(randomMonster);
+    const pool = [...baseMonsters];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const swap = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[swap]] = [pool[swap], pool[i]];
     }
+
+    const monstersPerFloor = Math.min(3 + Math.floor(floor / 2), pool.length);
+    const encounters = pool.slice(0, monstersPerFloor);
     
     // Boss cada 5 pisos
     if (floor % 5 === 0) {

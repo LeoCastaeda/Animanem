@@ -65,17 +65,17 @@ export default function App() {
   const generateEncounters = (sceneId: SceneId) => {
     switch(sceneId) {
       case 'beach':
-        return ['shadow-1', 'event:chest', 'shadow-2'];
+        return ['shadow-1', 'event:chest', 'event:shrine'];
       case 'sunken':
         return ['wraith', 'event:chest', 'spirit'];
       case 'forest':
         return ['ghoul-1', 'event:unlock-zaigo', 'event:pet', 'beast-1', 'event:chest'];
       case 'glacier':
-        return ['ice-giant', 'event:shrine', 'beast-2'];
+        return ['ice-giant', 'event:shrine', 'event:chest'];
       case 'ruins':
-        return ['guardian-1', 'event:unlock-wiku', 'event:shrine', 'event:rune-alignment', 'spirit', 'event:friend-relic', 'golem'];
+        return ['guardian-1', 'event:unlock-wiku', 'event:shrine', 'event:rune-alignment', 'event:chest', 'event:friend-relic', 'golem'];
       case 'city':
-        return ['demon', 'event:chest', 'event:unlock-scrap', 'event:lion', 'dark-knight', 'event:rune-alignment', 'event:shrine', 'titan', 'guardian-2'];
+        return ['demon', 'event:chest', 'event:unlock-scrap', 'event:lion', 'dark-knight', 'event:rune-alignment', 'event:shrine', 'titan'];
       case 'final-boss':
         return ['colossus'];
       default:
