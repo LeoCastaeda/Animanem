@@ -55,7 +55,9 @@ function createGameState(
 // Valid scene IDs (excluding intro and ending as they don't render minimap)
 const sceneIdArbitrary = fc.constantFrom<SceneId>(
   'beach',
+  'sunken',
   'forest',
+  'glacier',
   'ruins',
   'city',
   'final-boss'
@@ -98,7 +100,9 @@ const gameStateArbitrary = fc
           .map((currentEncounterId) => {
             const plannedEncounters: Record<SceneId, string[]> = {
               beach: [],
+              sunken: [],
               forest: [],
+              glacier: [],
               ruins: [],
               city: [],
               'final-boss': [],

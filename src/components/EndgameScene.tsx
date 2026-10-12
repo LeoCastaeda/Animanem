@@ -63,7 +63,7 @@ export default function EndgameScene({ gameState, onSelectMode, onExit }: Endgam
   return (
     <div className="h-full w-full flex flex-col items-center justify-center p-8 relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-indigo-950/30 to-black opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-indigo-950/20 to-black/70" />
       
       {/* Animated Background Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

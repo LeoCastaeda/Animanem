@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type SceneId = 'intro' | 'beach' | 'forest' | 'ruins' | 'city' | 'underground' | 'final-boss' | 'ending' | 'endgame';
+export type SceneId = 'intro' | 'beach' | 'sunken' | 'forest' | 'glacier' | 'ruins' | 'city' | 'underground' | 'final-boss' | 'ending' | 'endgame';
 
 // IDs de personajes jugables
 export type HeroId = 'hero' | 'zaigo' | 'wiku' | 'scrap';
@@ -116,10 +116,10 @@ export const INITIAL_STATE: GameState = {
   bestFriendStatus: 'alive',
   inventory: ['potion'],
   defeatedMonsters: {
-    'intro': [], 'beach': [], 'forest': [], 'ruins': [], 'city': [], 'underground': [], 'final-boss': [], 'ending': [], 'endgame': [],
+    'intro': [], 'beach': [], 'sunken': [], 'forest': [], 'glacier': [], 'ruins': [], 'city': [], 'underground': [], 'final-boss': [], 'ending': [], 'endgame': [],
   },
   plannedEncounters: {
-    'intro': [], 'beach': [], 'forest': [], 'ruins': [], 'city': [], 'underground': [], 'final-boss': [], 'ending': [], 'endgame': [],
+    'intro': [], 'beach': [], 'sunken': [], 'forest': [], 'glacier': [], 'ruins': [], 'city': [], 'underground': [], 'final-boss': [], 'ending': [], 'endgame': [],
   },
   currentEncounterId: 0,
   campaignCompleted: false,

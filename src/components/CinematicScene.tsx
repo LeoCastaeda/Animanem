@@ -39,7 +39,7 @@ export default function CinematicScene({ type, onComplete }: { type: 'ending', o
       >
         <p>El Coloso del Caos ha caído. Las ciudades se separan y la paz regresa al reino mágico.</p>
         <p>Tu valentía y el sacrificio (y posterior resurrección) de tu amigo serán recordados por la eternidad.</p>
-        <p>Has conquistado las playas oscuras, los bosques mágicos y las ruinas antiguas.</p>
+        <p>Has conquistado las playas oscuras, la fosa del naufragio, los bosques mágicos, la cumbre de cristal y las ruinas antiguas.</p>
       </motion.div>
 
       <div className="flex gap-4 mb-12">

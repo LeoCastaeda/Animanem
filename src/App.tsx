@@ -47,13 +47,15 @@ export default function App() {
   const SCENE_VIDEOS: Record<SceneId, string | undefined> = {
     'intro': '/video/cabecera_principal.mp4',
     'beach': '/video/primer_nivel.mp4',
+    'sunken': '/video/fosa_del_naufragio.mp4',
     'forest': '/video/second_level.mp4',
+    'glacier': '/video/cumbre_de_cristal.mp4',
     'ruins': '/video/bosque_de_las_almas.mp4',
     'city': '/video/city.mp4',
-    'underground': undefined,
+    'underground': '/video/criptas_de_aethel.mp4',
     'final-boss': '/video/final-boss.mp4',
     'ending': '/video/final.mp4',
-    'endgame': undefined,
+    'endgame': '/video/arena_del_vacio.mp4',
   };
 
   const updateGameState = useCallback((updates: Partial<GameState>) => {
@@ -64,8 +66,12 @@ export default function App() {
     switch(sceneId) {
       case 'beach':
         return ['shadow-1', 'event:chest', 'shadow-2'];
+      case 'sunken':
+        return ['wraith', 'event:chest', 'spirit'];
       case 'forest':
         return ['ghoul-1', 'event:unlock-zaigo', 'event:pet', 'beast-1', 'event:chest'];
+      case 'glacier':
+        return ['ice-giant', 'event:shrine', 'beast-2'];
       case 'ruins':
         return ['guardian-1', 'event:unlock-wiku', 'event:shrine', 'event:rune-alignment', 'spirit', 'event:friend-relic', 'golem'];
       case 'city':
@@ -209,7 +215,10 @@ export default function App() {
   };
 
   const getBackgroundVideoSrc = () => {
-    const desktop = SCENE_VIDEOS[gameState.currentScene];
+    let desktop: string | undefined;
+    if (!isInMenu && activeView === 'underground') desktop = SCENE_VIDEOS.underground;
+    else if (!isInMenu && activeView === 'endgame') desktop = SCENE_VIDEOS.endgame;
+    else desktop = SCENE_VIDEOS[gameState.currentScene];
     if (!desktop || !portraitVideo) return desktop;
     return desktop.replace('/video/', '/video/mobile/');
   };
@@ -231,14 +240,14 @@ export default function App() {
       }
     };
     tryPlay();
-  }, [gameState.currentScene, portraitVideo]);
+  }, [gameState.currentScene, portraitVideo, activeView, isInMenu]);
 
   return (
     <div className="fixed inset-0 bg-[#020617] text-white font-sans overflow-hidden select-none">
       {shouldShowVideo && (
         <video
           ref={videoRef}
-          key={`${gameState.currentScene}-${portraitVideo ? 'portrait' : 'landscape'}`}
+          key={`${getBackgroundVideoSrc() ?? gameState.currentScene}-${portraitVideo ? 'portrait' : 'landscape'}`}
           className="absolute inset-0 w-full h-full object-cover opacity-60 sm:opacity-70 md:opacity-80 will-change-opacity"
           src={getBackgroundVideoSrc()}
           autoPlay
@@ -296,7 +305,7 @@ export default function App() {
           </motion.div>
         ) : (
           <>
-            {gameState.currentScene === 'intro' && (
+            {activeView === 'narrative' && gameState.currentScene === 'intro' && (
               <motion.div key="intro" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10 transition-colors">
                 <IntroScene onComplete={() => changeScene('beach')} />
               </motion.div>
@@ -319,7 +328,10 @@ export default function App() {
                 <UndergroundScene
                   gameState={gameState}
                   onCombatTrigger={handleCombatTrigger}
-                  onExit={() => setActiveView('exploration')}
+                  onExit={() => {
+                    setIsInMenu(true);
+                    setActiveView('narrative');
+                  }}
                   onStateUpdate={updateGameState}
                 />
               </motion.div>

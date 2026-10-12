@@ -72,7 +72,9 @@ export default function SaveSlotsManager({ mode, onSelect, onCancel }: SaveSlots
     const names: Record<string, string> = {
       'intro': 'Introducción',
       'beach': 'Playa',
+      'sunken': 'Fosa',
       'forest': 'Bosque',
+      'glacier': 'Cumbre',
       'ruins': 'Ruinas',
       'city': 'Ciudad',
       'underground': 'Subterráneos',

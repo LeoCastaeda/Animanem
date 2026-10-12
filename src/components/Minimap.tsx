@@ -87,6 +87,24 @@ export default function Minimap({ gameState }: MinimapProps) {
         { name: 'Náufrago Misterioso', x: 45, y: 75, desc: 'Un viejo que murmura sobre sombras gigantescas que acechan en el agua.' }
       ]
     },
+    'sunken': {
+      title: 'Fosa del Naufragio',
+      region: 'Bajo las Islas Quebradas',
+      start: { x: 18, y: 78 },
+      end: { x: 84, y: 22 },
+      encounterPoints: [
+        { x: 32, y: 64 },
+        { x: 52, y: 48 },
+        { x: 70, y: 34 }
+      ],
+      buildings: [
+        { name: 'Galeón Hundido', x: 28, y: 42, desc: 'El casco del barco que la tormenta partió. Las velas aún se mueven con la corriente.' },
+        { name: 'Arco de Marea', x: 76, y: 28, desc: 'Una puerta de piedra cubierta de runas cian. No pertenece a ningún mapa de superficie.' }
+      ],
+      npcs: [
+        { name: 'Eco del Marinero', x: 48, y: 70, desc: 'Una voz sin cuerpo que señala el camino hacia la luz de la superficie.' }
+      ]
+    },
     'forest': {
       title: 'Bosque de las Almas',
       region: 'Las Tierras Silvestres',
@@ -104,6 +122,24 @@ export default function Minimap({ gameState }: MinimapProps) {
       ],
       npcs: [
         { name: 'Sabio Druida', x: 80, y: 45, desc: 'Un anciano elfo que aconseja a los viajeros no salirse del camino principal.' }
+      ]
+    },
+    'glacier': {
+      title: 'Cumbre de Cristal',
+      region: 'El Filo Helado',
+      start: { x: 16, y: 82 },
+      end: { x: 86, y: 18 },
+      encounterPoints: [
+        { x: 34, y: 66 },
+        { x: 52, y: 48 },
+        { x: 72, y: 30 }
+      ],
+      buildings: [
+        { name: 'Santuario de Hielo', x: 74, y: 24, desc: 'Una capilla de piedra atrapada entre agujas de cristal. La aurora entra por su arco.' },
+        { name: 'Pinar Petrificado', x: 22, y: 36, desc: 'Pinos congelados en el instante de una ventisca antigua.' }
+      ],
+      npcs: [
+        { name: 'Vigía de la Aurora', x: 40, y: 58, desc: 'Un ermitaño que lee el cielo violeta y advierte de los gigantes dormidos.' }
       ]
     },
     'ruins': {

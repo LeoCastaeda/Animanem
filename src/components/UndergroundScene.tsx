@@ -115,7 +115,7 @@ export default function UndergroundScene({ gameState, onCombatTrigger, onExit, o
   return (
     <div className="h-full w-full flex flex-col items-center justify-center p-8 relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/30 to-black opacity-80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-purple-950/25 to-black/75" />
       <div className="absolute inset-0 bg-[url('/images/underground-bg.png')] bg-cover bg-center opacity-20" />
       
       {/* Floating Particles */}
